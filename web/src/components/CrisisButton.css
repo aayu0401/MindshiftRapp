@@ -1,0 +1,50 @@
+.crisis-button-fixed {
+    position: fixed;
+    bottom: var(--spacing-2xl);
+    right: var(--spacing-2xl);
+    z-index: 1000;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--radius-full);
+    border: none;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-base);
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.crisis-button-fixed:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 25px rgba(239, 68, 68, 0.6);
+}
+
+.crisis-button-fixed svg {
+    font-size: 1.2rem;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 4px 30px rgba(239, 68, 68, 0.7);
+    }
+}
+
+@media (max-width: 768px) {
+    .crisis-button-fixed {
+        bottom: var(--spacing-lg);
+        right: var(--spacing-lg);
+        padding: var(--spacing-md) var(--spacing-lg);
+        font-size: var(--font-size-sm);
+    }
+}

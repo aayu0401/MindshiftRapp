@@ -1,0 +1,32 @@
+.pillars {
+    background: var(--color-bg-primary);
+}
+
+.pillars-header {
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto var(--spacing-4xl);
+}
+
+.pillars-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+.pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-2xl);
+}
+
+@media (max-width: 768px) {
+    .pillars-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pillars-title {
+        font-size: var(--font-size-lg);
+    }
+}

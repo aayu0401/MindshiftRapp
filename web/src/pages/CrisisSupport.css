@@ -1,0 +1,225 @@
+.crisis-support-page {
+    min-height: 100vh;
+    background: var(--color-bg-primary);
+}
+
+/* Emergency Banner */
+.emergency-banner {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    padding: var(--spacing-lg);
+    border-bottom: 3px solid #b91c1c;
+}
+
+.emergency-banner .container {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    max-width: 1200px;
+}
+
+.emergency-banner svg {
+    font-size: 2.5rem;
+    color: white;
+    flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.emergency-banner strong {
+    display: block;
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-xs);
+}
+
+.emergency-banner p {
+    margin: 0;
+    font-size: var(--font-size-base);
+    opacity: 0.95;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Hero */
+.crisis-hero {
+    text-align: center;
+    padding: var(--spacing-4xl) 0;
+}
+
+.crisis-icon {
+    font-size: 5rem;
+    color: #ef4444;
+    margin-bottom: var(--spacing-xl);
+}
+
+.crisis-hero h1 {
+    font-size: var(--font-size-5xl);
+    margin-bottom: var(--spacing-lg);
+}
+
+.crisis-subtitle {
+    font-size: var(--font-size-xl);
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Hotlines */
+.hotlines-section {
+    background: var(--color-bg-primary);
+}
+
+.section-title {
+    text-align: center;
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--spacing-3xl);
+}
+
+.hotlines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-2xl);
+}
+
+.hotline-card {
+    text-align: center;
+    padding: var(--spacing-3xl);
+}
+
+.hotline-icon {
+    font-size: 3rem;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.hotline-card h3 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-md);
+}
+
+.hotline-number {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-primary);
+    margin: var(--spacing-lg) 0;
+    font-family: monospace;
+}
+
+.hotline-card p {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xl);
+}
+
+/* Steps */
+.steps-section {
+    background: var(--color-bg-secondary);
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-xl);
+}
+
+.step-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.steps-grid h3 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-primary);
+}
+
+.steps-grid p {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Warning Signs */
+.warning-section {
+    background: var(--color-bg-primary);
+}
+
+.warning-intro {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+}
+
+.warning-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.warning-list li {
+    padding: var(--spacing-md);
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid #ef4444;
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.warning-list li::before {
+    content: '⚠️';
+    margin-right: var(--spacing-sm);
+}
+
+/* Resources */
+.resources-section {
+    background: var(--color-bg-secondary);
+}
+
+.resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-xl);
+}
+
+.resources-grid h3 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-md);
+    color: var(--color-primary);
+}
+
+.resources-grid p {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .emergency-banner .container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .crisis-hero h1 {
+        font-size: var(--font-size-3xl);
+    }
+
+    .hotlines-grid,
+    .steps-grid,
+    .resources-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .warning-list {
+        grid-template-columns: 1fr;
+    }
+}
