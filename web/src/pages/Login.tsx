@@ -46,22 +46,19 @@ export default function Login() {
         e.preventDefault();
         setIsLoading(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            const success = login(email, password, selectedRole);
-            setIsLoading(false);
-
-            if (success) {
-                toast.success(`Welcome back!`);
-                if (selectedRole === 'teacher' || selectedRole === 'school') {
-                    navigate('/dashboard');
-                } else {
-                    navigate('/stories');
-                }
+        try {
+            await login(email, password, selectedRole);
+            toast.success(`Welcome back!`);
+            if (selectedRole === 'teacher' || selectedRole === 'school') {
+                navigate('/dashboard');
             } else {
-                toast.error('Invalid credentials. Try demo accounts!');
+                navigate('/stories');
             }
-        }, 1000);
+        } catch (error) {
+            toast.error('Invalid credentials. Try demo accounts!');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleDemoLogin = (role: typeof selectedRole) => {

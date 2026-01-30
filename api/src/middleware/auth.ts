@@ -3,10 +3,15 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../prismaClient';
 
 export interface AuthRequest extends Request {
-  user?: any;
+  user?: {
+    sub: string;
+    email: string;
+    name?: string;
+    role: string;
+  };
 }
 
-export async function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
+export async function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const auth = req.headers['authorization'];
     if (!auth) return res.status(401).json({ error: 'Missing authorization header' });
@@ -17,9 +22,12 @@ export async function requireAuth(req: AuthRequest, res: Response, next: NextFun
     if (!payload || !payload.sub) return res.status(401).json({ error: 'Invalid token' });
     const user = await prisma.user.findUnique({ where: { id: payload.sub } });
     if (!user) return res.status(401).json({ error: 'User not found' });
-    req.user = { id: user.id, email: user.email, name: user.name };
+    req.user = { sub: user.id, email: user.email, name: user.name || undefined, role: user.role };
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 }
+
+// Legacy export for backward compatibility
+export const requireAuth = authMiddleware;

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindshiftR - Working Version</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #0a1628;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #00d4aa 0%, transparent 70%);
+            top: -10%;
+            left: -10%;
+        }
+
+        .orb2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            bottom: -10%;
+            right: -10%;
+            animation-delay: 7s;
+        }
+
+        .orb3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 14s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 500px;
+            width: 90%;
+            background: rgba(21, 40, 68, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #b8c5d6;
+            margin-bottom: 40px;
+        }
+
+        .status {
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px;
+            font-size: 16px;
+        }
+
+        .status-item.success {
+            color: #00d4aa;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border: none;
+            margin: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.3);
+        }
+
+        .time {
+            margin-top: 24px;
+            font-size: 14px;
+            color: #7a8ba0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+    </div>
+
+    <div class="container">
+        <h1>✅ MindshiftR</h1>
+        <p class="subtitle">Mental Health Literacy Platform</p>
+
+        <div class="status">
+            <div class="status-item success">
+                <span>✅</span>
+                <span>Server Running</span>
+            </div>
+            <div class="status-item success">
+                <span>✅</span>
+                <span>Port 5173 Active</span>
+            </div>
+            <div class="status-item success">
+                <span>✅</span>
+                <span>App Ready</span>
+            </div>
+        </div>
+
+        <button class="btn" onclick="location.reload()">Reload Page</button>
+        <button class="btn"
+            onclick="alert('Server is running on http://localhost:5173\\n\\nIf you see this message, the server is working!\\n\\nTry clearing your browser cache (Ctrl+Shift+Delete) and reload.')">Test
+            Alert</button>
+
+        <p class="time" id="time"></p>
+    </div>
+
+    <script>
+        document.getElementById('time').textContent = 'Current Time: ' + new Date().toLocaleString();
+        console.log('✅ MindshiftR standalone page loaded successfully!');
+        console.log('Server: http://localhost:5173');
+        console.log('If you can see this in console, JavaScript is working!');
+    </script>
+</body>
+
+</html>

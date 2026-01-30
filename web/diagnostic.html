@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic Test</title>
+    <style>
+        body {
+            background: #0a1628;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 40px;
+        }
+
+        .success {
+            color: #00d4aa;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+
+        pre {
+            background: #152844;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>MindshiftR Diagnostic Test</h1>
+    <div id="status"></div>
+    <h2>Console Errors:</h2>
+    <pre id="errors">No errors yet...</pre>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const errorsDiv = document.getElementById('errors');
+        const errors = [];
+
+        // Capture console errors
+        window.onerror = function (msg, url, lineNo, columnNo, error) {
+            const errorMsg = `Error: ${msg}\nURL: ${url}\nLine: ${lineNo}\nColumn: ${columnNo}\nStack: ${error?.stack || 'N/A'}`;
+            errors.push(errorMsg);
+            errorsDiv.textContent = errors.join('\n\n---\n\n');
+            return false;
+        };
+
+        // Test React loading
+        statusDiv.innerHTML = '<p class="success">✅ HTML loaded successfully</p>';
+
+        // Try to load the main app
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = '/src/main.tsx';
+        script.onload = () => {
+            statusDiv.innerHTML += '<p class="success">✅ main.tsx loaded</p>';
+        };
+        script.onerror = (e) => {
+            statusDiv.innerHTML += '<p class="error">❌ Failed to load main.tsx</p>';
+            errors.push('Failed to load main.tsx: ' + e.toString());
+            errorsDiv.textContent = errors.join('\n\n---\n\n');
+        };
+        document.head.appendChild(script);
+
+        // Check after 2 seconds
+        setTimeout(() => {
+            if (document.getElementById('root')?.children.length === 0) {
+                statusDiv.innerHTML += '<p class="error">❌ React did not render - check errors above</p>';
+            } else {
+                statusDiv.innerHTML += '<p class="success">✅ React rendered successfully!</p>';
+            }
+        }, 2000);
+    </script>
+    <div id="root"></div>
+</body>
+
+</html>

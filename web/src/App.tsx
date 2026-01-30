@@ -1,28 +1,26 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import ErrorBoundary from './components/ErrorBoundary';
-import CrisisButton from './components/CrisisButton';
+import { Routes, Route } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
+import ErrorBoundary from './components/ErrorBoundary'
+import CrisisButton from './components/CrisisButton'
 
 // Public Pages
-import MindshiftRLanding from './components/MindshiftRLanding';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Stories from './pages/Stories';
-import StoryReader from './pages/StoryReader';
-import About from './pages/About';
-import FAQPage from './pages/FAQPage';
-import Courses from './pages/Courses';
-import Assessments from './pages/Assessments';
-import Assessment from './pages/Assessment';
-import CrisisSupport from './pages/CrisisSupport';
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+import Stories from './pages/Stories'
+import StoryReader from './pages/StoryReader'
+import About from './pages/About'
+import FAQPage from './pages/FAQPage'
+import Courses from './pages/Courses'
+import Assessments from './pages/Assessments'
+import Assessment from './pages/Assessment'
+import CrisisSupport from './pages/CrisisSupport'
 
 // Protected Pages
-import Dashboard from './pages/Dashboard';
-import AIStoryCreator from './pages/AIStoryCreator';
-import ParentPortal from './pages/ParentPortal';
+import Dashboard from './pages/Dashboard'
+import AIStoryCreator from './pages/AIStoryCreator'
+import ParentPortal from './pages/ParentPortal'
 
 export default function App() {
   return (
@@ -48,7 +46,7 @@ export default function App() {
         <CrisisButton />
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<MindshiftRLanding />} />
+          <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/stories" element={<Stories />} />
@@ -88,5 +86,5 @@ export default function App() {
         </Routes>
       </AuthProvider>
     </ErrorBoundary>
-  );
+  )
 }

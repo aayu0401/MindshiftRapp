@@ -1,25 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaBook, FaChartBar, FaCalendar, FaDownload, FaExclamationTriangle } from 'react-icons/fa';
+import { FaUsers, FaBook, FaChartBar, FaCalendar, FaDownload, FaExclamationTriangle, FaSpinner } from 'react-icons/fa';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import { Card } from '../components/Card';
 import Button from '../components/Button';
 import { ProgressLineChart, EngagementBarChart, RiskDistributionPieChart, CompletionRateChart } from '../components/AnalyticsCharts';
+import { fetchUserAnalytics, fetchClassAnalytics, fetchHighRiskStudents } from '../api/analytics.api';
 import './Dashboard.css';
 
 export default function Dashboard() {
   const [timeRange, setTimeRange] = useState('week');
+  const [loading, setLoading] = useState(true);
+  const [usingMockData, setUsingMockData] = useState(false);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [highRiskStudents, setHighRiskStudents] = useState<any[]>([]);
 
-  const stats = [
+  // Mock data for fallback
+  const mockStats = [
     { icon: <FaUsers />, label: 'Active Students', value: '124', change: '+12%' },
     { icon: <FaBook />, label: 'Stories Completed', value: '342', change: '+8%' },
     { icon: <FaChartBar />, label: 'Avg. Engagement', value: '87%', change: '+5%' },
     { icon: <FaCalendar />, label: 'Sessions This Month', value: '28', change: '+15%' }
   ];
 
-  // Mock data for charts
-  const progressData = [
+  const mockProgressData = [
     { name: 'Mon', value: 65 },
     { name: 'Tue', value: 72 },
     { name: 'Wed', value: 68 },
@@ -29,30 +34,89 @@ export default function Dashboard() {
     { name: 'Sun', value: 88 }
   ];
 
-  const engagementData = [
+  const mockEngagementData = [
     { name: 'Year 4', stories: 45, courses: 32, assessments: 28 },
     { name: 'Year 5', stories: 52, courses: 38, assessments: 35 },
     { name: 'Year 6', stories: 48, courses: 42, assessments: 40 }
   ];
 
-  const riskData = [
+  const mockRiskData = [
     { name: 'Low Risk', value: 85, color: '#10b981' },
     { name: 'Moderate Risk', value: 12, color: '#f59e0b' },
     { name: 'High Risk', value: 3, color: '#ef4444' }
   ];
 
-  const completionData = [
+  const mockCompletionData = [
     { class: 'Year 5A', completion: 92 },
     { class: 'Year 5B', completion: 85 },
     { class: 'Year 6A', completion: 88 },
     { class: 'Year 6B', completion: 78 }
   ];
 
-  const highRiskStudents = [
+  const mockHighRiskStudents = [
     { name: 'Student A', class: 'Year 5A', assessment: 'Anxiety Screening', score: 24, date: '2024-02-15' },
     { name: 'Student B', class: 'Year 6B', assessment: 'Mood Screening', score: 15, date: '2024-02-14' },
     { name: 'Student C', class: 'Year 5B', assessment: 'Behavioral Regulation', score: 14, date: '2024-02-13' }
   ];
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    setLoading(true);
+    try {
+      // Try to fetch from API
+      const [analyticsData, highRiskData] = await Promise.all([
+        fetchClassAnalytics(), // or fetchUserAnalytics() for students
+        fetchHighRiskStudents()
+      ]);
+
+      setAnalytics(analyticsData);
+      setHighRiskStudents(highRiskData);
+      setUsingMockData(false);
+    } catch (error) {
+      console.log('Backend unavailable, using sample data');
+      // Use mock data
+      setAnalytics(null);
+      setHighRiskStudents(mockHighRiskStudents);
+      setUsingMockData(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const retryBackend = () => {
+    loadDashboardData();
+  };
+
+  // Use API data if available, otherwise use mock data
+  const stats = analytics ? [
+    { icon: <FaUsers />, label: 'Active Students', value: analytics.totalStudents?.toString() || '0', change: '+12%' },
+    { icon: <FaBook />, label: 'Stories Completed', value: analytics.storiesCompleted?.toString() || '0', change: '+8%' },
+    { icon: <FaChartBar />, label: 'Avg. Engagement', value: `${analytics.averageEngagement || 0}%`, change: '+5%' },
+    { icon: <FaCalendar />, label: 'Sessions This Month', value: analytics.sessionsThisMonth?.toString() || '0', change: '+15%' }
+  ] : mockStats;
+
+  const progressData = analytics?.weeklyProgress || mockProgressData;
+  const engagementData = analytics?.engagementByYear || mockEngagementData;
+  const riskData = analytics?.riskDistribution || mockRiskData;
+  const completionData = analytics?.completionByClass || mockCompletionData;
+
+  if (loading) {
+    return (
+      <div className="dashboard-page">
+        <Navigation />
+        <div className="container section">
+          <div className="loading-state">
+            <FaSpinner className="spinner" />
+            <p>Loading dashboard...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-page">
@@ -60,6 +124,17 @@ export default function Dashboard() {
 
       <div className="dashboard-container">
         <div className="container">
+          {/* Demo Mode Badge */}
+          {usingMockData && (
+            <div className="demo-mode-badge">
+              <span className="badge-icon">📊</span>
+              <span>Demo Mode - Using sample analytics data</span>
+              <button className="badge-retry" onClick={retryBackend}>
+                Try Backend
+              </button>
+            </div>
+          )}
+
           {/* Header */}
           <motion.div
             className="dashboard-header"

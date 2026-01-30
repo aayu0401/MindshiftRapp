@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Server Test</title>
+    <style>
+        body {
+            background: #0a1628;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(21, 40, 68, 0.8);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 212, 170, 0.3);
+        }
+
+        h1 {
+            color: #00d4aa;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        .success {
+            color: #00d4aa;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>✅ Vite Server is Working!</h1>
+        <div class="status success">Server Status: ONLINE</div>
+        <p>Port: 5175</p>
+        <p>Time: <span id="time"></span></p>
+        <a href="/">Go to Main App</a>
+        <a href="/test">Go to Test Page</a>
+    </div>
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString();
+    </script>
+</body>
+
+</html>

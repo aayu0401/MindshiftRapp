@@ -17,7 +17,7 @@ export interface User {
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string, role?: UserRole) => Promise<void>;
     signup: (userData: SignupData) => Promise<void>;
     logout: () => void;
     loading: boolean;
@@ -49,18 +49,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
     }, []);
 
-    const login = async (email: string, password: string) => {
+    const login = async (email: string, password: string, role?: UserRole) => {
         setLoading(true);
         try {
             // Mock login - in production, this would call your API
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // Mock user data based on email
+            // Mock user data based on email or provided role
+            const userRole = role || (email.includes('teacher') ? 'teacher' : email.includes('school') ? 'school' : 'student');
+
             const mockUser: User = {
                 id: Math.random().toString(36).substr(2, 9),
                 email,
                 name: email.split('@')[0],
-                role: email.includes('teacher') ? 'teacher' : email.includes('school') ? 'school' : 'student',
+                role: userRole,
                 schoolId: 'school-123',
                 schoolName: 'Greenwood Academy',
                 classId: 'class-456',

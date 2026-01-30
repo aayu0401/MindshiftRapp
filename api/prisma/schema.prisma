@@ -1,8 +1,21 @@
-generator client { provider = "prisma-client-js" }
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  SCHOOL_ADMIN
+  PARENT
 }
 
 model User {
@@ -10,7 +23,29 @@ model User {
   email     String   @unique
   password  String
   name      String?
+  role      UserRole @default(STUDENT)
+  
+  // Student-specific fields
+  age       Int?
+  grade     String?
+  schoolId  String?
+  
+  // Parent-specific fields
+  childrenIds String[] // Array of student user IDs
+  
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  storyProgress     StoryProgress[]
+  assessmentResponses AssessmentResponse[]
+  assessmentResults   AssessmentResult[]
+  userAnalytics       UserAnalytics?
+  generatedStories    AIGeneratedStory[]
+  
+  @@index([email])
+  @@index([role])
+  @@index([schoolId])
 }
 
 model RefreshToken {
@@ -22,4 +57,515 @@ model RefreshToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
+  @@index([token])
+}
+
+// ============================================
+// STORY SYSTEM
+// ============================================
+
+enum StoryCategory {
+  ANXIETY_MANAGEMENT
+  DEPRESSION_SUPPORT
+  SOCIAL_SKILLS
+  EMOTIONAL_REGULATION
+  SELF_ESTEEM
+  RESILIENCE
+  MINDFULNESS
+  GRIEF_LOSS
+  CLASSIC_LITERATURE
+  ORIGINAL_STORY
+}
+
+enum AgeGroup {
+  AGE_6_8
+  AGE_8_10
+  AGE_10_12
+  AGE_12_14
+  AGE_14_16
+  AGE_16_18
+}
+
+enum TherapeuticGoal {
+  REDUCE_ANXIETY
+  IMPROVE_MOOD
+  BUILD_SOCIAL_SKILLS
+  ENHANCE_EMOTIONAL_REGULATION
+  BOOST_SELF_ESTEEM
+  DEVELOP_RESILIENCE
+  PRACTICE_MINDFULNESS
+  PROCESS_GRIEF
+  DEVELOP_COPING_SKILLS
+}
+
+model Story {
+  id          String   @id @default(cuid())
+  title       String
+  author      String
+  excerpt     String   @db.Text
+  description String?  @db.Text
+  
+  category    StoryCategory
+  ageGroup    AgeGroup
+  therapeuticGoals TherapeuticGoal[]
+  
+  imageUrl    String?
+  estimatedReadingTime Int? // in minutes
+  
+  published   Boolean  @default(false)
+  featured    Boolean  @default(false)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  chapters    StoryChapter[]
+  assessments Assessment[]
+  progress    StoryProgress[]
+  
+  @@index([category])
+  @@index([ageGroup])
+  @@index([published])
+}
+
+model StoryChapter {
+  id          String   @id @default(cuid())
+  storyId     String
+  chapterNumber Int
+  title       String
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  story       Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  sections    StorySection[]
+  
+  @@unique([storyId, chapterNumber])
+  @@index([storyId])
+}
+
+enum SectionType {
+  TEXT
+  QUESTION
+  REFLECTION
+  ACTIVITY
+}
+
+model StorySection {
+  id          String      @id @default(cuid())
+  chapterId   String
+  sectionNumber Int
+  type        SectionType
+  content     String      @db.Text
+  
+  // For question sections
+  questionId  String?
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  chapter     StoryChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  question    StoryQuestion? @relation(fields: [questionId], references: [id])
+  
+  @@unique([chapterId, sectionNumber])
+  @@index([chapterId])
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  REFLECTION
+  DISCUSSION
+  ACTIVITY
+  SCALE
+}
+
+model StoryQuestion {
+  id          String       @id @default(cuid())
+  question    String       @db.Text
+  type        QuestionType
+  
+  // For scale questions
+  scaleMin    Int?
+  scaleMax    Int?
+  scaleMinLabel String?
+  scaleMaxLabel String?
+  
+  therapeuticPurpose String? @db.Text
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Relations
+  options     StoryQuestionOption[]
+  sections    StorySection[]
+  responses   StoryQuestionResponse[]
+  
+  @@index([type])
+}
+
+model StoryQuestionOption {
+  id          String   @id @default(cuid())
+  questionId  String
+  optionText  String   @db.Text
+  orderIndex  Int
+  
+  // Therapeutic scoring (optional)
+  therapeuticScore Int? // For CBT/PBCT analysis
+  
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  question    StoryQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  @@index([questionId])
+}
+
+model StoryQuestionResponse {
+  id          String   @id @default(cuid())
+  userId      String
+  questionId  String
+  
+  // Response data
+  selectedOptionId String?
+  scaleValue  Int?
+  textResponse String? @db.Text
+  
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  question    StoryQuestion @relation(fields: [questionId], references: [id])
+  
+  @@unique([userId, questionId])
+  @@index([userId])
+  @@index([questionId])
+}
+
+// ============================================
+// ASSESSMENT SYSTEM
+// ============================================
+
+enum AssessmentType {
+  CBT
+  PBCT
+  SCREENING
+  POST_STORY
+}
+
+model Assessment {
+  id          String         @id @default(cuid())
+  title       String
+  type        AssessmentType
+  description String         @db.Text
+  ageGroup    AgeGroup
+  
+  // Link to story (optional)
+  storyId     String?
+  
+  // Scoring configuration
+  lowRiskMin      Int
+  lowRiskMax      Int
+  moderateRiskMin Int
+  moderateRiskMax Int
+  highRiskMin     Int
+  highRiskMax     Int
+  
+  lowRiskDescription      String @db.Text
+  moderateRiskDescription String @db.Text
+  highRiskDescription     String @db.Text
+  
+  lowRiskRecommendation      String @db.Text
+  moderateRiskRecommendation String @db.Text
+  highRiskRecommendation     String @db.Text
+  
+  published   Boolean  @default(false)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  story       Story?   @relation(fields: [storyId], references: [id])
+  questions   AssessmentQuestion[]
+  responses   AssessmentResponse[]
+  results     AssessmentResult[]
+  
+  @@index([type])
+  @@index([ageGroup])
+  @@index([storyId])
+  @@index([published])
+}
+
+model AssessmentQuestion {
+  id          String       @id @default(cuid())
+  assessmentId String
+  questionNumber Int
+  question    String       @db.Text
+  type        QuestionType
+  
+  // For scale questions
+  scaleMin    Int?
+  scaleMax    Int?
+  scaleMinLabel String?
+  scaleMaxLabel String?
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Relations
+  assessment  Assessment   @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  options     AssessmentQuestionOption[]
+  responses   AssessmentQuestionResponse[]
+  
+  @@unique([assessmentId, questionNumber])
+  @@index([assessmentId])
+}
+
+model AssessmentQuestionOption {
+  id          String   @id @default(cuid())
+  questionId  String
+  optionText  String   @db.Text
+  orderIndex  Int
+  scoreValue  Int      // Points for this option
+  
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  question    AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  @@index([questionId])
+}
+
+model AssessmentResponse {
+  id          String   @id @default(cuid())
+  userId      String
+  assessmentId String
+  
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+  assessment  Assessment @relation(fields: [assessmentId], references: [id])
+  questionResponses AssessmentQuestionResponse[]
+  result      AssessmentResult?
+  
+  @@index([userId])
+  @@index([assessmentId])
+  @@index([completedAt])
+}
+
+model AssessmentQuestionResponse {
+  id          String   @id @default(cuid())
+  responseId  String
+  questionId  String
+  
+  selectedOptionId String?
+  scaleValue  Int?
+  
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  response    AssessmentResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question    AssessmentQuestion @relation(fields: [questionId], references: [id])
+  
+  @@unique([responseId, questionId])
+  @@index([responseId])
+  @@index([questionId])
+}
+
+enum RiskLevel {
+  LOW
+  MODERATE
+  HIGH
+}
+
+model AssessmentResult {
+  id          String     @id @default(cuid())
+  userId      String
+  assessmentId String
+  responseId  String     @unique
+  
+  totalScore  Int
+  riskLevel   RiskLevel
+  
+  recommendations String[] // Array of recommendation strings
+  requiresScreening Boolean @default(false)
+  
+  createdAt   DateTime   @default(now())
+  
+  // Relations
+  user        User       @relation(fields: [userId], references: [id])
+  assessment  Assessment @relation(fields: [assessmentId], references: [id])
+  response    AssessmentResponse @relation(fields: [responseId], references: [id])
+  
+  @@index([userId])
+  @@index([assessmentId])
+  @@index([riskLevel])
+  @@index([requiresScreening])
+  @@index([createdAt])
+}
+
+// ============================================
+// PROGRESS & ANALYTICS
+// ============================================
+
+model StoryProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  storyId     String
+  
+  currentChapter Int   @default(1)
+  currentSection Int   @default(1)
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+  
+  lastReadAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+  story       Story    @relation(fields: [storyId], references: [id])
+  
+  @@unique([userId, storyId])
+  @@index([userId])
+  @@index([storyId])
+  @@index([completed])
+}
+
+model UserAnalytics {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  
+  // Story metrics
+  storiesStarted    Int @default(0)
+  storiesCompleted  Int @default(0)
+  
+  // Assessment metrics
+  assessmentsCompleted Int @default(0)
+  lastAssessmentDate   DateTime?
+  
+  // Risk tracking
+  currentRiskLevel  RiskLevel?
+  highRiskCount     Int @default(0)
+  moderateRiskCount Int @default(0)
+  lowRiskCount      Int @default(0)
+  
+  // Engagement
+  lastActiveDate    DateTime?
+  totalTimeSpent    Int @default(0) // in minutes
+  
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+  
+  @@index([currentRiskLevel])
+  @@index([lastActiveDate])
+}
+
+model ClassAnalytics {
+  id          String   @id @default(cuid())
+  teacherId   String
+  className   String
+  schoolId    String?
+  
+  // Aggregated metrics
+  totalStudents      Int
+  activeStudents     Int
+  highRiskStudents   Int
+  moderateRiskStudents Int
+  
+  averageCompletionRate Float
+  averageEngagementScore Float
+  
+  lastUpdated DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  
+  @@index([teacherId])
+  @@index([schoolId])
+}
+
+// ============================================
+// AI STORY GENERATOR
+// ============================================
+
+enum GenerationStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+  APPROVED
+  REJECTED
+}
+
+model AIStoryTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @db.Text
+  
+  // Template criteria
+  ageGroup    AgeGroup
+  category    StoryCategory
+  therapeuticGoals TherapeuticGoal[]
+  
+  // Prompt configuration
+  systemPrompt String  @db.Text
+  userPromptTemplate String @db.Text
+  
+  // Story structure
+  targetChapters Int   @default(3)
+  targetSectionsPerChapter Int @default(5)
+  targetQuestionsPerChapter Int @default(2)
+  
+  active      Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  generatedStories AIGeneratedStory[]
+  
+  @@index([ageGroup])
+  @@index([category])
+}
+
+model AIGeneratedStory {
+  id          String   @id @default(cuid())
+  templateId  String?
+  generatedBy String   // User ID of teacher/admin who requested
+  
+  // Generation criteria
+  ageGroup    AgeGroup
+  category    StoryCategory
+  therapeuticGoals TherapeuticGoal[]
+  customPrompt String? @db.Text
+  
+  // Generated content
+  title       String?
+  author      String   @default("AI Generated")
+  content     Json?    // Full story structure as JSON
+  
+  status      GenerationStatus @default(PENDING)
+  
+  // Review
+  reviewedBy  String?
+  reviewNotes String?  @db.Text
+  approvedAt  DateTime?
+  
+  // If approved, link to published story
+  publishedStoryId String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  template    AIStoryTemplate? @relation(fields: [templateId], references: [id])
+  generator   User     @relation(fields: [generatedBy], references: [id])
+  
+  @@index([generatedBy])
+  @@index([status])
+  @@index([ageGroup])
+  @@index([category])
 }

@@ -1,21 +1,65 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaClipboardList, FaBrain, FaUsers } from 'react-icons/fa';
+import { FaClipboardList, FaBrain, FaUsers, FaSpinner } from 'react-icons/fa';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import { Card } from '../components/Card';
 import { allAssessments } from '../data/assessmentData';
+import { fetchAssessments } from '../api/assessments.api';
 import './Assessments.css';
 
 export default function Assessments() {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const [usingMockData, setUsingMockData] = useState(false);
+    const [assessments, setAssessments] = useState<any[]>([]);
 
     const assessmentIcons: Record<string, React.ReactNode> = {
         'CBT': <FaBrain />,
         'PBCT': <FaUsers />,
         'Screening': <FaClipboardList />
     };
+
+    useEffect(() => {
+        loadAssessments();
+    }, []);
+
+    const loadAssessments = async () => {
+        setLoading(true);
+        try {
+            // Try to fetch from API
+            const apiAssessments = await fetchAssessments();
+            setAssessments(apiAssessments);
+            setUsingMockData(false);
+        } catch (error) {
+            console.log('Backend unavailable, using sample data');
+            // Fallback to mock data
+            setAssessments(allAssessments);
+            setUsingMockData(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const retryBackend = () => {
+        loadAssessments();
+    };
+
+    if (loading) {
+        return (
+            <div className="assessments-page">
+                <Navigation />
+                <div className="container section">
+                    <div className="loading-state">
+                        <FaSpinner className="spinner" />
+                        <p>Loading assessments...</p>
+                    </div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
         <div className="assessments-page">
@@ -37,8 +81,19 @@ export default function Assessments() {
 
             <section className="assessments-grid-section section">
                 <div className="container">
+                    {/* Demo Mode Badge */}
+                    {usingMockData && (
+                        <div className="demo-mode-badge">
+                            <span className="badge-icon">📋</span>
+                            <span>Demo Mode - Using sample assessments</span>
+                            <button className="badge-retry" onClick={retryBackend}>
+                                Try Backend
+                            </button>
+                        </div>
+                    )}
+
                     <div className="assessments-grid">
-                        {allAssessments.map((assessment, index) => (
+                        {assessments.map((assessment, index) => (
                             <motion.div
                                 key={assessment.id}
                                 initial={{ opacity: 0, y: 20 }}
@@ -54,7 +109,7 @@ export default function Assessments() {
                                     <p className="assessment-description">{assessment.description}</p>
                                     <div className="assessment-meta">
                                         <span>Ages {assessment.ageGroup}</span>
-                                        <span>{assessment.questions.length} Questions</span>
+                                        <span>{assessment.questions?.length || assessment.questionCount || 0} Questions</span>
                                     </div>
                                 </Card>
                             </motion.div>

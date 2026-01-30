@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaMagic, FaBook, FaUsers, FaHeart, FaBrain, FaSmile } from 'react-icons/fa';
+import { FaMagic, FaBook, FaUsers, FaHeart, FaBrain, FaSmile, FaSpinner } from 'react-icons/fa';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
 import { Card } from '../components/Card';
 import toast from 'react-hot-toast';
+import { generateAIStory, fetchAITemplates } from '../api/ai-generator.api';
 import './AIStoryCreator.css';
 
 export default function AIStoryCreator() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [generated, setGenerated] = useState(false);
+    const [usingMockData, setUsingMockData] = useState(false);
     const [formData, setFormData] = useState({
         topic: '',
         ageGroup: '8-10',
@@ -41,7 +43,32 @@ export default function AIStoryCreator() {
 
         setLoading(true);
         try {
-            // Mock AI generation - in production, call your AI API
+            // Try to generate from API
+            const result: any = await generateAIStory({
+                title: `The ${formData.topic} Adventure`,
+                ageGroup: formData.ageGroup,
+                category: formData.theme.toUpperCase(),
+                therapeuticGoals: [formData.theme.toUpperCase()],
+                criteria: {
+                    topic: formData.topic,
+                    characters: formData.characters,
+                    length: formData.length
+                }
+            });
+
+            const story = {
+                title: result.title || `The ${formData.topic} Adventure`,
+                content: result.content || result.generatedContent || '',
+                questions: result.questions || []
+            };
+
+            setGeneratedStory(story);
+            setGenerated(true);
+            setUsingMockData(false);
+            toast.success('Story generated successfully!');
+        } catch (error) {
+            console.log('Backend unavailable, using mock generation');
+            // Fallback to mock generation
             await new Promise(resolve => setTimeout(resolve, 2000));
 
             const story = {
@@ -57,9 +84,8 @@ export default function AIStoryCreator() {
 
             setGeneratedStory(story);
             setGenerated(true);
-            toast.success('Story generated successfully!');
-        } catch (error) {
-            toast.error('Failed to generate story');
+            setUsingMockData(true);
+            toast.success('Story generated (demo mode)!');
         } finally {
             setLoading(false);
         }
@@ -68,6 +94,11 @@ export default function AIStoryCreator() {
     const handleSave = () => {
         toast.success('Story saved to library!');
         navigate('/stories');
+    };
+
+    const retryBackend = () => {
+        setGenerated(false);
+        setUsingMockData(false);
     };
 
     return (
@@ -175,7 +206,7 @@ export default function AIStoryCreator() {
                                 disabled={loading}
                                 className="generate-btn"
                             >
-                                {loading ? 'Generating Story...' : <><FaMagic /> Generate Story</>}
+                                {loading ? <><FaSpinner className="spinner" /> Generating Story...</> : <><FaMagic /> Generate Story</>}
                             </Button>
                         </Card>
                     ) : (
@@ -183,6 +214,17 @@ export default function AIStoryCreator() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                         >
+                            {/* Demo Mode Badge */}
+                            {usingMockData && (
+                                <div className="demo-mode-badge">
+                                    <span className="badge-icon">✨</span>
+                                    <span>Demo Mode - Using mock AI generation</span>
+                                    <button className="badge-retry" onClick={retryBackend}>
+                                        Try Backend
+                                    </button>
+                                </div>
+                            )}
+
                             <Card variant="glass" className="story-preview-card">
                                 <div className="preview-header">
                                     <h2>{generatedStory.title}</h2>
