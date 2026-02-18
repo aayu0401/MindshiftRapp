@@ -32,6 +32,7 @@ export interface Lesson {
 export const coursesData: Course[] = [
     {
         id: 'course-1',
+        imageUrl: 'https://images.unsplash.com/photo-1489710437720-ebb67ec84dd2?w=800&q=80',
         title: 'Emotional Awareness for Young Learners',
         description: 'Help young students identify and understand their emotions through interactive stories and activities.',
         category: 'Emotional Intelligence',
@@ -66,6 +67,7 @@ export const coursesData: Course[] = [
     },
     {
         id: 'course-2',
+        imageUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
         title: 'Building Resilience and Coping Skills',
         description: 'Develop resilience and learn practical coping strategies for handling challenges and stress.',
         category: 'Resilience',
@@ -100,6 +102,7 @@ export const coursesData: Course[] = [
     },
     {
         id: 'course-3',
+        imageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
         title: 'Friendship and Social Skills',
         description: 'Develop healthy friendships and improve communication and empathy skills.',
         category: 'Social Skills',
@@ -133,6 +136,7 @@ export const coursesData: Course[] = [
     },
     {
         id: 'course-4',
+        imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
         title: 'Self-Esteem and Confidence Building',
         description: 'Build self-confidence and develop a positive self-image through evidence-based activities.',
         category: 'Self-Esteem',
@@ -166,6 +170,7 @@ export const coursesData: Course[] = [
     },
     {
         id: 'course-5',
+        imageUrl: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=800&q=80',
         title: 'Managing Anxiety and Worry',
         description: 'Learn to understand and manage anxiety with CBT-based techniques.',
         category: 'Anxiety Management',
@@ -200,6 +205,7 @@ export const coursesData: Course[] = [
     },
     {
         id: 'course-6',
+        imageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80',
         title: 'Mental Health Literacy for Teens',
         description: 'Comprehensive mental health education for teenagers covering various topics.',
         category: 'Mental Health Literacy',

@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaUserGraduate, FaChalkboardTeacher, FaSchool, FaArrowRight, FaCheckCircle } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaUserGraduate, FaChalkboardTeacher, FaSchool, FaArrowRight, FaCheckCircle, FaHandHoldingHeart } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Login.css';
 
 export default function Login() {
     const navigate = useNavigate();
-    const { login } = useAuth();
-    const [selectedRole, setSelectedRole] = useState<'student' | 'teacher' | 'school'>('student');
+    const [selectedRole, setSelectedRole] = useState<'student' | 'teacher' | 'school' | 'parent'>('student');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
+    const { login } = useAuth();
     const roles = [
         {
             id: 'student' as const,
@@ -39,6 +38,14 @@ export default function Login() {
             color: '#00d4aa',
             description: 'Manage school-wide settings',
             demo: { email: 'school@demo.com', password: 'password' }
+        },
+        {
+            id: 'parent' as const,
+            name: 'Parent',
+            icon: <FaHandHoldingHeart />,
+            color: '#f59e0b',
+            description: 'Support your childs emotional growth',
+            demo: { email: 'parent@demo.com', password: 'password' }
         }
     ];
 
@@ -47,12 +54,14 @@ export default function Login() {
         setIsLoading(true);
 
         try {
-            await login(email, password, selectedRole);
+            await login(email, password, selectedRole as any);
             toast.success(`Welcome back!`);
             if (selectedRole === 'teacher' || selectedRole === 'school') {
                 navigate('/dashboard');
+            } else if (selectedRole === 'student') {
+                navigate('/student-dashboard');
             } else {
-                navigate('/stories');
+                navigate('/parent-portal');
             }
         } catch (error) {
             toast.error('Invalid credentials. Try demo accounts!');
@@ -61,12 +70,30 @@ export default function Login() {
         }
     };
 
-    const handleDemoLogin = (role: typeof selectedRole) => {
+    const handleDemoLogin = async (role: typeof selectedRole) => {
         const demoAccount = roles.find(r => r.id === role)?.demo;
         if (demoAccount) {
             setEmail(demoAccount.email);
             setPassword(demoAccount.password);
             setSelectedRole(role);
+
+            // Auto login for demo
+            setIsLoading(true);
+            try {
+                await login(demoAccount.email, demoAccount.password, role as any);
+                toast.success(`Welcome to the ${role} demo!`);
+                if (role === 'teacher' || role === 'school') {
+                    navigate('/dashboard');
+                } else if (role === 'student') {
+                    navigate('/student-dashboard');
+                } else {
+                    navigate('/parent-portal');
+                }
+            } catch (error) {
+                toast.error('Demo login failed');
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -88,8 +115,10 @@ export default function Login() {
                     transition={{ duration: 0.6 }}
                 >
                     <Link to="/" className="brand-logo">
-                        <span className="brand-icon">📚</span>
-                        <span className="brand-name">Mindshiftr</span>
+                        <motion.div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <span className="brand-icon">📚</span>
+                            <span className="brand-name">Mindshiftr</span>
+                        </motion.div>
                     </Link>
                     <h1 className="brand-title">Welcome Back</h1>
                     <p className="brand-subtitle">

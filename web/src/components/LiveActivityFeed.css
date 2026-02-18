@@ -1,0 +1,118 @@
+.live-activity-feed {
+    padding: var(--spacing-lg);
+}
+
+.feed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xl);
+}
+
+.feed-header h3 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    margin: 0;
+}
+
+.live-pulse {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(var(--color-primary-rgb), 0.1);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+}
+
+.pulse-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.5);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.activity-item {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+}
+
+.activity-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(var(--color-primary-rgb), 0.2);
+}
+
+.activity-icon {
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+}
+
+.icon-success {
+    color: #10b981;
+}
+
+.icon-warning {
+    color: #ef4444;
+}
+
+.icon-ai {
+    color: #8b5cf6;
+}
+
+.icon-default {
+    color: var(--color-primary);
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    line-height: 1.4;
+}
+
+.activity-text strong {
+    color: var(--color-primary);
+}
+
+.activity-time {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin-top: 4px;
+}

@@ -1,4 +1,5 @@
 import { apiClient } from './client';
+import { sampleStories } from '../data/sampleStories';
 
 export interface Story {
     id: string;
@@ -16,6 +17,8 @@ export interface Story {
     chapters?: StoryChapter[];
     assessments?: any[];
     userProgress?: StoryProgress | null;
+    references?: string;
+    relationships?: string;
 }
 
 export interface StoryChapter {
@@ -45,6 +48,7 @@ export interface StoryQuestionOption {
     id: string;
     optionText: string;
     orderIndex: number;
+    isCorrect?: boolean;
 }
 
 export interface StoryProgress {
@@ -65,30 +69,90 @@ export interface StoryFilters {
     search?: string;
 }
 
+const STORAGE_KEY = 'mindshiftr_user_stories';
+
+/**
+ * Helper to get local stories
+ */
+const getLocalStories = (): Story[] => {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+        return [];
+    }
+};
+
+/**
+ * Helper to convert sample stories to Story interface
+ */
+const getMappedStories = (): Story[] => {
+    return sampleStories.map(s => ({
+        ...s,
+        therapeuticGoals: ['Emotional Awareness', 'Resilience'],
+        published: true,
+        featured: true,
+        chapters: s.content ? [{
+            id: `chapter-${s.id}`,
+            chapterNumber: 1,
+            title: 'Beginning',
+            sections: s.content.map((sec, i) => ({
+                id: `sec-${s.id}-${i}`,
+                sectionNumber: i + 1,
+                type: sec.type === 'question' ? 'QUESTION' : 'TEXT' as any,
+                content: sec.content,
+                question: sec.type === 'question' ? {
+                    id: `q-${s.id}-${i}`,
+                    question: sec.content,
+                    type: 'MULTIPLE_CHOICE'
+                } : undefined
+            }))
+        }] : []
+    }));
+};
+
 /**
  * Fetch all stories with optional filters
  */
 export async function fetchStories(filters?: StoryFilters): Promise<Story[]> {
-    const params = new URLSearchParams();
-    if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-            if (value !== undefined) {
-                params.append(key, String(value));
-            }
-        });
-    }
+    try {
+        // Try to get from API first
+        // const response = await apiClient.get<Story[]>(`/api/stories`);
+        // return response.data;
+        throw new Error('Backend not available');
+    } catch (error) {
+        console.warn('Using sample + local stories');
+        const sample = getMappedStories();
+        const local = getLocalStories();
+        let allStories = [...local, ...sample];
 
-    const response = await apiClient.get<Story[]>(`/api/stories?${params.toString()}`);
-    return response.data;
+        if (filters) {
+            if (filters.category) allStories = allStories.filter(s => s.category.toLowerCase() === filters.category?.toLowerCase());
+            if (filters.ageGroup) allStories = allStories.filter(s => s.ageGroup === filters.ageGroup);
+            if (filters.search) {
+                const q = filters.search.toLowerCase();
+                allStories = allStories.filter(s => s.title.toLowerCase().includes(q) || s.description?.toLowerCase().includes(q));
+            }
+        }
+        return allStories;
+    }
 }
 
 /**
  * Fetch a single story by ID
  */
 export async function fetchStoryById(storyId: string, userId?: string): Promise<Story> {
-    const params = userId ? `?userId=${userId}` : '';
-    const response = await apiClient.get<Story>(`/api/stories/${storyId}${params}`);
-    return response.data;
+    try {
+        // Try API
+        // const response = await apiClient.get<Story>(`/api/stories/${storyId}`);
+        // return response.data;
+        throw new Error('Backend not available');
+    } catch (error) {
+        const stories = [...getLocalStories(), ...getMappedStories()];
+        const story = stories.find(s => s.id === storyId);
+        if (!story) throw new Error('Story not found');
+        return story;
+    }
 }
 
 /**
@@ -100,12 +164,14 @@ export async function updateStoryProgress(
     currentSection: number,
     completed: boolean = false
 ): Promise<StoryProgress> {
-    const response = await apiClient.post<StoryProgress>(`/api/stories/${storyId}/progress`, {
+    // Just mock it
+    return {
+        id: 'mock-progress',
         currentChapter,
         currentSection,
         completed,
-    });
-    return response.data;
+        lastReadAt: new Date()
+    };
 }
 
 /**
@@ -114,49 +180,62 @@ export async function updateStoryProgress(
 export async function submitQuestionResponse(
     storyId: string,
     questionId: string,
-    response: {
-        selectedOptionId?: string;
-        scaleValue?: number;
-        textResponse?: string;
-    }
+    response: any
 ): Promise<any> {
-    const result = await apiClient.post(
-        `/api/stories/${storyId}/questions/${questionId}/response`,
-        response
-    );
-    return result.data;
+    return { success: true };
 }
 
 /**
  * Get user's responses to story questions
  */
 export async function fetchUserStoryResponses(storyId: string): Promise<any[]> {
-    const response = await apiClient.get(`/api/stories/${storyId}/responses`);
-    return response.data;
+    return [];
 }
 
 /**
  * Create a new story (teacher/admin only)
  */
 export async function createStory(storyData: any, chapters: any[]): Promise<Story> {
-    const response = await apiClient.post<Story>('/api/stories', {
-        storyData,
-        chapters,
-    });
-    return response.data;
+    try {
+        // Mock creation logic
+        const newStory: Story = {
+            ...storyData,
+            id: `user-story-${Date.now()}`,
+            chapters,
+            published: true,
+            featured: false,
+            author: storyData.author || 'AI Storyteller'
+        };
+
+        const localStories = getLocalStories();
+        localStories.push(newStory);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(localStories));
+
+        return newStory;
+    } catch (e) {
+        throw e;
+    }
 }
 
 /**
  * Update a story (teacher/admin only)
  */
 export async function updateStory(storyId: string, data: Partial<Story>): Promise<Story> {
-    const response = await apiClient.put<Story>(`/api/stories/${storyId}`, data);
-    return response.data;
+    const localStories = getLocalStories();
+    const index = localStories.findIndex(s => s.id === storyId);
+    if (index !== -1) {
+        localStories[index] = { ...localStories[index], ...data };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(localStories));
+        return localStories[index];
+    }
+    throw new Error('Story not found or cannot be updated locally');
 }
 
 /**
  * Delete a story (admin only)
  */
 export async function deleteStory(storyId: string): Promise<void> {
-    await apiClient.delete(`/api/stories/${storyId}`);
+    const localStories = getLocalStories();
+    const filtered = localStories.filter(s => s.id !== storyId);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
 }

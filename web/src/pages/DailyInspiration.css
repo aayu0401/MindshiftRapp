@@ -1,0 +1,348 @@
+/* ===================================
+   DAILY INSPIRATION - PREMIUM QUOTE PAGE
+   =================================== */
+
+.inspiration-page {
+    min-height: 100vh;
+    background: var(--color-bg-primary);
+    background-image: var(--gradient-mesh-light);
+    background-attachment: fixed;
+    overflow-x: hidden;
+}
+
+.inspiration-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 140px 24px 60px;
+}
+
+/* Greeting */
+.inspiration-greeting {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.greeting-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
+    border-radius: 14px;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--color-primary);
+}
+
+.inspiration-greeting h2 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--color-text-primary);
+    letter-spacing: -0.03em;
+    margin-bottom: 0.35rem;
+}
+
+.inspiration-greeting p {
+    font-size: 1.05rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Quote Card */
+.quote-card {
+    position: relative;
+    border-radius: 32px;
+    padding: 48px 40px 36px;
+    background: var(--quote-bg);
+    color: white;
+    overflow: hidden;
+    margin-bottom: 3rem;
+    box-shadow:
+        0 20px 40px -10px var(--quote-glow),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.quote-bg-pattern {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.quote-orb {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    filter: blur(60px);
+}
+
+.quote-orb-1 {
+    width: 300px;
+    height: 300px;
+    top: -100px;
+    right: -50px;
+}
+
+.quote-orb-2 {
+    width: 200px;
+    height: 200px;
+    bottom: -60px;
+    left: -30px;
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.quote-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.quote-mark {
+    font-size: 2rem;
+    opacity: 0.3;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.quote-text {
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.5;
+    margin: 0 0 1.25rem;
+    font-style: italic;
+    letter-spacing: -0.01em;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.quote-author {
+    font-size: 1rem;
+    font-weight: 600;
+    opacity: 0.85;
+    margin-bottom: 1rem;
+}
+
+.quote-theme-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.quote-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.quote-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(4px);
+    font-family: var(--font-body);
+}
+
+.quote-action-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.quote-action-btn.favorited {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.quote-action-btn.favorited svg {
+    color: #fde047;
+}
+
+/* Wellness Section */
+.wellness-section {
+    margin-bottom: 3rem;
+}
+
+.wellness-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.wellness-header h3 {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--color-text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.35rem;
+}
+
+.wellness-header p {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    margin: 0;
+}
+
+.wellness-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.wellness-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    border-radius: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+    position: relative;
+}
+
+.wellness-card:hover {
+    background: white;
+    border-color: rgba(14, 165, 233, 0.1);
+}
+
+.wellness-icon {
+    font-size: 1.75rem;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(248, 250, 252, 0.8);
+    border-radius: 12px;
+}
+
+.wellness-info {
+    flex: 1;
+}
+
+.wellness-info h4 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+}
+
+.wellness-info p {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.wellness-duration {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-text-muted);
+    background: rgba(248, 250, 252, 0.8);
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+/* Stats */
+.inspiration-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    padding: 2rem 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stat-icon {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.stat-icon.star {
+    color: #fbbf24;
+}
+
+.stat-icon.heart {
+    color: #ef4444;
+}
+
+.stat-icon.leaf {
+    color: #10b981;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--color-text-primary);
+    letter-spacing: -0.02em;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .inspiration-container {
+        padding: 120px 16px 40px;
+    }
+
+    .quote-card {
+        padding: 36px 24px 28px;
+        border-radius: 24px;
+    }
+
+    .quote-text {
+        font-size: 1.2rem;
+    }
+
+    .wellness-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .inspiration-stats {
+        gap: 2rem;
+    }
+
+    .quote-actions {
+        flex-wrap: wrap;
+    }
+}

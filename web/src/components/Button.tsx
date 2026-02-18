@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import './Button.css';
 
 interface ButtonProps {
@@ -10,7 +11,9 @@ interface ButtonProps {
   href?: string;
   className?: string;
   disabled?: boolean;
+  style?: React.CSSProperties;
 }
+
 
 export default function Button({
   children,
@@ -19,11 +22,28 @@ export default function Button({
   onClick,
   href,
   className = '',
-  disabled = false
+  disabled = false,
+  style
 }: ButtonProps) {
   const baseClass = `btn btn-${variant} btn-${size} ${className}`;
 
-  const buttonContent = (
+  if (href && !disabled) {
+    return (
+      <Link to={href} className={baseClass} style={style}>
+        <motion.span
+          initial={false}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ duration: 0.2 }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+        >
+          {children}
+        </motion.span>
+      </Link>
+    );
+  }
+
+  return (
     <motion.button
       className={baseClass}
       onClick={onClick}
@@ -31,18 +51,9 @@ export default function Button({
       whileHover={{ scale: disabled ? 1 : 1.05 }}
       whileTap={{ scale: disabled ? 1 : 0.95 }}
       transition={{ duration: 0.2 }}
+      style={style}
     >
       {children}
     </motion.button>
   );
-
-  if (href && !disabled) {
-    return (
-      <a href={href} style={{ textDecoration: 'none' }}>
-        {buttonContent}
-      </a>
-    );
-  }
-
-  return buttonContent;
 }

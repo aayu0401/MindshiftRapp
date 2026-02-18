@@ -11,14 +11,11 @@ export default defineConfig({
   optimizeDeps: {
     exclude: [],
     esbuildOptions: {
-      target: 'es2020'
+      target: 'esnext'
     }
   },
   build: {
-    target: 'es2020',
-    sourcemap: true,
-    commonjsOptions: {
-      transformMixedEsModules: true
-    }
+    target: 'esnext',
+    sourcemap: false
   }
 })

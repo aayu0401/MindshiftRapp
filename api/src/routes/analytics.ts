@@ -1,6 +1,6 @@
-import express from 'express';
+import express, { Response } from 'express';
 import { analyticsService } from '../services/analytics.service';
-import { authMiddleware } from '../middleware/auth';
+import { authMiddleware, AuthRequest } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -8,16 +8,19 @@ const router = express.Router();
  * GET /api/analytics/user/:userId
  * Get analytics for a specific user
  */
-router.get('/user/:userId', authMiddleware, async (req, res) => {
+router.get('/user/:userId', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
         const { userId } = req.params;
+        const currentUser = req.user;
+
+        if (!currentUser) return res.status(401).json({ error: 'Not authenticated' });
 
         // Check permissions: user can view own data, teachers/admins can view student data, parents can view children
         if (
-            req.user.sub !== userId &&
-            req.user.role !== 'TEACHER' &&
-            req.user.role !== 'SCHOOL_ADMIN' &&
-            req.user.role !== 'PARENT'
+            currentUser.sub !== userId &&
+            currentUser.role !== 'TEACHER' &&
+            currentUser.role !== 'SCHOOL_ADMIN' &&
+            currentUser.role !== 'PARENT'
         ) {
             return res.status(403).json({ error: 'Access denied' });
         }
@@ -34,8 +37,9 @@ router.get('/user/:userId', authMiddleware, async (req, res) => {
  * GET /api/analytics/me
  * Get analytics for current user
  */
-router.get('/me', authMiddleware, async (req, res) => {
+router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
+        if (!req.user) return res.status(401).json({ error: 'Not authenticated' });
         const analytics = await analyticsService.getUserAnalytics(req.user.sub);
         return res.json(analytics);
     } catch (error: any) {
@@ -48,8 +52,9 @@ router.get('/me', authMiddleware, async (req, res) => {
  * GET /api/analytics/class
  * Get class-wide analytics (teacher only)
  */
-router.get('/class', authMiddleware, async (req, res) => {
+router.get('/class', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
+        if (!req.user) return res.status(401).json({ error: 'Not authenticated' });
         if (req.user.role !== 'TEACHER' && req.user.role !== 'SCHOOL_ADMIN') {
             return res.status(403).json({ error: 'Teacher or admin access required' });
         }
@@ -67,14 +72,16 @@ router.get('/class', authMiddleware, async (req, res) => {
  * GET /api/analytics/school
  * Get school-wide analytics (admin only)
  */
-router.get('/school', authMiddleware, async (req, res) => {
+router.get('/school', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
+        if (!req.user) return res.status(401).json({ error: 'Not authenticated' });
         if (req.user.role !== 'SCHOOL_ADMIN') {
             return res.status(403).json({ error: 'Admin access required' });
         }
 
         // Get school ID from user
-        const user = await require('../prismaClient').prisma.user.findUnique({
+        const { prisma } = await import('../prismaClient');
+        const user = await prisma.user.findUnique({
             where: { id: req.user.sub },
             select: { schoolId: true },
         });
@@ -95,13 +102,15 @@ router.get('/school', authMiddleware, async (req, res) => {
  * GET /api/analytics/high-risk
  * Get high-risk students (teacher/admin only)
  */
-router.get('/high-risk', authMiddleware, async (req, res) => {
+router.get('/high-risk', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
+        if (!req.user) return res.status(401).json({ error: 'Not authenticated' });
         if (req.user.role !== 'TEACHER' && req.user.role !== 'SCHOOL_ADMIN') {
             return res.status(403).json({ error: 'Teacher or admin access required' });
         }
 
-        const user = await require('../prismaClient').prisma.user.findUnique({
+        const { prisma } = await import('../prismaClient');
+        const user = await prisma.user.findUnique({
             where: { id: req.user.sub },
             select: { schoolId: true },
         });
@@ -122,16 +131,19 @@ router.get('/high-risk', authMiddleware, async (req, res) => {
  * GET /api/analytics/report/:userId
  * Generate comprehensive progress report for a student
  */
-router.get('/report/:userId', authMiddleware, async (req, res) => {
+router.get('/report/:userId', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
         const { userId } = req.params;
+        const currentUser = req.user;
+
+        if (!currentUser) return res.status(401).json({ error: 'Not authenticated' });
 
         // Check permissions
         if (
-            req.user.sub !== userId &&
-            req.user.role !== 'TEACHER' &&
-            req.user.role !== 'SCHOOL_ADMIN' &&
-            req.user.role !== 'PARENT'
+            currentUser.sub !== userId &&
+            currentUser.role !== 'TEACHER' &&
+            currentUser.role !== 'SCHOOL_ADMIN' &&
+            currentUser.role !== 'PARENT'
         ) {
             return res.status(403).json({ error: 'Access denied' });
         }
@@ -148,8 +160,9 @@ router.get('/report/:userId', authMiddleware, async (req, res) => {
  * POST /api/analytics/track-engagement
  * Track user engagement
  */
-router.post('/track-engagement', authMiddleware, async (req, res) => {
+router.post('/track-engagement', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
+        if (!req.user) return res.status(401).json({ error: 'Not authenticated' });
         const { activityType, durationMinutes } = req.body;
 
         await analyticsService.trackEngagement(

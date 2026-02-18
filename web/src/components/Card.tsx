@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import './Card.css';
+import LiveReadCounter from './LiveReadCounter';
 
 interface CardProps {
     children: React.ReactNode;
-    variant?: 'glass' | 'solid' | 'feature';
+    variant?: 'glass' | 'solid' | 'feature' | 'premium' | 'deep';
     className?: string;
     hover?: boolean;
     onClick?: () => void;
@@ -30,11 +31,13 @@ interface FeatureCardProps {
     icon: React.ReactNode;
     title: string;
     description: string;
+    imageUrl?: string;
 }
 
-export function FeatureCard({ icon, title, description }: FeatureCardProps) {
+export function FeatureCard({ icon, title, description, imageUrl }: FeatureCardProps) {
     return (
-        <Card variant="feature">
+        <Card variant="feature" className="pillar-feature-card">
+            {imageUrl && <div className="feature-pillar-image" style={{ backgroundImage: `url(${imageUrl})` }} />}
             <div className="feature-icon">{icon}</div>
             <h3 className="feature-title">{title}</h3>
             <p className="feature-description">{description}</p>
@@ -60,7 +63,11 @@ export function StoryCard({ title, author, excerpt, category, imageUrl, onClick 
             transition={{ duration: 0.3 }}
         >
             {imageUrl && (
-                <div className="story-card-image" style={{ backgroundImage: `url(${imageUrl})` }} />
+                <div className="story-card-image" style={{ backgroundImage: `url(${imageUrl})` }}>
+                    <div className="story-card-overlay">
+                        <LiveReadCounter />
+                    </div>
+                </div>
             )}
             <div className="story-card-content">
                 <span className="story-card-category">{category}</span>
@@ -69,5 +76,18 @@ export function StoryCard({ title, author, excerpt, category, imageUrl, onClick 
                 <p className="story-card-excerpt">{excerpt}</p>
             </div>
         </motion.div>
+    );
+}
+export function StoryCardSkeleton() {
+    return (
+        <div className="story-card skeleton-card">
+            <div className="skeleton skeleton-image" />
+            <div className="story-card-content">
+                <div className="skeleton skeleton-category" />
+                <div className="skeleton skeleton-title" />
+                <div className="skeleton skeleton-text" />
+                <div className="skeleton skeleton-text" style={{ width: '80%' }} />
+            </div>
+        </div>
     );
 }

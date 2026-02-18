@@ -23,7 +23,7 @@ export const sampleStories: Story[] = [
         excerpt: 'Follow Alice down the rabbit hole into a world of wonder, where nothing is quite as it seems...',
         category: 'Classic Literature',
         ageGroup: '8-12',
-        imageUrl: undefined,
+        imageUrl: 'https://images.unsplash.com/photo-1615486511484-92e172cc4fe0?w=800&q=80',
         content: [
             {
                 type: 'text',
@@ -61,6 +61,7 @@ export const sampleStories: Story[] = [
         excerpt: 'A young prince travels from planet to planet, learning about life, love, and what truly matters...',
         category: 'Modern Classic',
         ageGroup: '10-14',
+        imageUrl: 'https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?w=800&q=80',
         content: [
             {
                 type: 'text',
@@ -68,7 +69,7 @@ export const sampleStories: Story[] = [
             },
             {
                 type: 'question',
-                content: 'The narrator remembers something from when they were young. What\'s a memory from your childhood that stayed with you? Why do you think you remember it?',
+                content: 'The narrator remembers something from when they were young. What\'s a memory from when you were even younger that stayed with you?',
                 questionType: 'reflection'
             },
             {
@@ -77,7 +78,7 @@ export const sampleStories: Story[] = [
             },
             {
                 type: 'question',
-                content: 'The grown-ups didn\'t understand the narrator\'s drawing. Have you ever felt like someone didn\'t understand what you were trying to say? How did that make you feel?',
+                content: 'Have you ever felt like someone didn\'t understand what you were trying to say? How did that make you feel?',
                 questionType: 'discussion'
             }
         ]
@@ -89,6 +90,7 @@ export const sampleStories: Story[] = [
         excerpt: 'A young sapling learns that being different can be a strength, not a weakness...',
         category: 'Original Story',
         ageGroup: '6-10',
+        imageUrl: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=800&q=80',
         content: [
             {
                 type: 'text',
@@ -135,6 +137,7 @@ export const sampleStories: Story[] = [
         excerpt: 'Two very different flowers learn that friendship can bloom in unexpected places...',
         category: 'Original Story',
         ageGroup: '6-10',
+        imageUrl: 'https://images.unsplash.com/photo-1557958114-3d24402bbd93?w=800&q=80',
         content: [
             {
                 type: 'text',

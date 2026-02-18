@@ -1,0 +1,747 @@
+/* ===================================
+   ZENBOT - PREMIUM COMPANION WIDGET
+   =================================== */
+
+.zenbot-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+/* Trigger Button */
+.zenbot-trigger {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+    border: none;
+    color: white;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(14, 165, 233, 0.35);
+    position: relative;
+    z-index: 2;
+}
+
+.trigger-pulse {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(14, 165, 233, 0.5);
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.trigger-pulse-2 {
+    animation-delay: 1s;
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.9);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
+}
+
+/* Chat Window */
+.zenbot-window {
+    width: 340px;
+    max-height: 520px;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    position: absolute;
+    bottom: 4.5rem;
+    right: 0;
+    transform-origin: bottom right;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.zenbot-header {
+    background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.zenbot-title {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.zenbot-title-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.zenbot-title-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.zenbot-title-text span:first-child {
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: -0.01em;
+}
+
+.zenbot-status {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #86efac;
+    letter-spacing: 0.5px;
+}
+
+.close-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: rotate(90deg);
+}
+
+/* Content Area */
+.zenbot-content {
+    padding: 1.25rem;
+    overflow-y: auto;
+    max-height: 420px;
+    flex: 1;
+}
+
+/* Welcome Screen */
+.zenbot-welcome {
+    text-align: center;
+}
+
+.zenbot-avatar {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    animation: botFloat 3s ease-in-out infinite;
+}
+
+@keyframes botFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+.zenbot-welcome h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.zenbot-welcome>p {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 1rem;
+}
+
+.zenbot-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.zen-action-btn {
+    padding: 0.7rem 0.85rem;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    background: rgba(248, 250, 252, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    font-family: var(--font-body);
+}
+
+.zen-action-btn:hover {
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transform: translateX(4px);
+    border-color: rgba(14, 165, 233, 0.15);
+}
+
+.zen-action-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.breath-icon {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+}
+
+.mood-icon {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.heart-icon {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.wisdom-icon {
+    background: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
+}
+
+.gratitude-icon {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.zen-action-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+}
+
+.zen-action-text strong {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.zen-action-text small {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+/* Breathing Mode */
+.zenbot-breathing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.5rem 0;
+}
+
+.breath-progress {
+    display: flex;
+    gap: 6px;
+}
+
+.breath-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.breath-dot.active {
+    background: var(--color-primary);
+    box-shadow: 0 0 8px rgba(14, 165, 233, 0.4);
+}
+
+.breath-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.75rem;
+    box-shadow: 0 0 30px rgba(14, 165, 233, 0.25);
+}
+
+.breath-instruction {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.breath-counter {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+.btn-stop {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-family: var(--font-body);
+}
+
+.btn-stop:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--color-text-secondary);
+}
+
+/* Affirmation Mode */
+.zenbot-affirmation {
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+.affirmation-glow {
+    margin-bottom: 1rem;
+}
+
+.affirmation-icon {
+    font-size: 2.5rem;
+    display: inline-block;
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+
+    0%,
+    100% {
+        transform: scale(1) rotate(0);
+    }
+
+    25% {
+        transform: scale(1.1) rotate(-5deg);
+    }
+
+    75% {
+        transform: scale(1.1) rotate(5deg);
+    }
+}
+
+.affirmation-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--color-text-primary);
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+}
+
+.zenbot-footer-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+/* Insight Mode */
+.zenbot-insight {
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+.insight-emoji {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    display: inline-block;
+}
+
+.insight-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+    padding: 0 0.25rem;
+}
+
+/* Mood Check-In */
+.zenbot-mood {
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+.mood-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.mood-subtitle {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.25rem;
+}
+
+.mood-options {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.mood-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.7rem 0.6rem;
+    border-radius: 14px;
+    border: 1.5px solid rgba(0, 0, 0, 0.05);
+    background: rgba(248, 250, 252, 0.9);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    min-width: 56px;
+    font-family: var(--font-body);
+}
+
+.mood-btn:hover {
+    background: white;
+    border-color: var(--mood-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.mood-emoji {
+    font-size: 1.4rem;
+    color: var(--mood-color);
+}
+
+.mood-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-family: var(--font-body);
+    margin-top: 0.5rem;
+}
+
+.btn-back-link:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--color-text-secondary);
+}
+
+/* Mood Result */
+.zenbot-mood-result {
+    text-align: center;
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mood-result-icon {
+    font-size: 3rem;
+}
+
+.mood-result-message {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-text-primary);
+    margin: 0;
+    padding: 0 0.5rem;
+}
+
+/* Gratitude Journal */
+.zenbot-gratitude {
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+.gratitude-header-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.zenbot-gratitude h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.zenbot-gratitude>p {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 1rem;
+}
+
+.gratitude-input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1.5px solid rgba(0, 0, 0, 0.06);
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    color: var(--color-text-primary);
+    background: rgba(248, 250, 252, 0.9);
+    resize: none;
+    transition: all 0.3s ease;
+    line-height: 1.5;
+}
+
+.gratitude-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.gratitude-input:focus {
+    outline: none;
+    border-color: #10b981;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
+}
+
+.gratitude-char-count {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    text-align: right;
+    margin-top: -0.15rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.gratitude-saved {
+    padding: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.saved-check {
+    font-size: 2.5rem;
+}
+
+.gratitude-saved p {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #10b981;
+    margin: 0;
+}
+
+/* Responsive */
+/* Chat AI Icon */
+.chat-ai-icon {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+}
+
+/* Chat Mode */
+.zenbot-chat {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    padding-right: 0.5rem;
+}
+
+.chat-empty {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    margin-top: 2rem;
+}
+
+.chat-bubble {
+    max-width: 85%;
+    padding: 0.75rem 1rem;
+    border-radius: 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.chat-bubble.user {
+    align-self: flex-end;
+    background: var(--color-primary);
+    color: white;
+    border-bottom-right-radius: 0.25rem;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+}
+
+.chat-bubble.assistant {
+    align-self: flex-start;
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--color-text-primary);
+    border-bottom-left-radius: 0.25rem;
+}
+
+.chat-bubble.typing {
+    display: flex;
+    gap: 4px;
+    padding: 0.6rem 0.8rem;
+    width: fit-content;
+}
+
+.chat-bubble.typing .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--color-text-muted);
+    border-radius: 50%;
+    animation: typing-dot 1s infinite;
+    opacity: 0.4;
+}
+
+.chat-bubble.typing .dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.chat-bubble.typing .dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing-dot {
+
+    0%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+
+    50% {
+        transform: translateY(-3px);
+        opacity: 1;
+    }
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(248, 250, 252, 0.8);
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background: white;
+}
+
+.chat-send-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chat-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .zenbot-container {
+        bottom: 1.25rem;
+        right: 1.25rem;
+    }
+
+    .zenbot-window {
+        width: calc(100vw - 2.5rem);
+        right: 0;
+    }
+
+    .zenbot-trigger {
+        width: 52px;
+        height: 52px;
+        font-size: 1.4rem;
+    }
+}

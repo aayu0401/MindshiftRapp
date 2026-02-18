@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaStar, FaClock, FaUsers } from 'react-icons/fa';
+import { FaStar, FaClock, FaUsers, FaBook } from 'react-icons/fa';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import { Card } from '../components/Card';
@@ -26,15 +26,26 @@ export default function Courses() {
         <div className="courses-page">
             <Navigation />
 
-            <section className="courses-hero section-sm">
-                <div className="container">
+            <section className="courses-hero section-md">
+                <div className="hero-background-glow">
+                    <div className="glow-orb orb-1"></div>
+                    <div className="glow-orb orb-2"></div>
+                </div>
+                <div className="container relative z-10">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
+                        className="text-center max-w-4xl mx-auto"
                     >
-                        <h1 className="courses-title">Mental Health Courses</h1>
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 text-blue-400 text-sm font-semibold mb-6 border border-blue-500/20">
+                            <FaBook /> Learning Library
+                        </div>
+                        <h1 className="courses-title">
+                            Master Your <span className="text-gradient">Mental Wellbeing</span>
+                        </h1>
                         <p className="courses-subtitle">
-                            Evidence-based courses designed to build emotional wellbeing and resilience
+                            Expert-led courses combining psychological science with interactive storytelling.
+                            Build resilience, confidence, and emotional intelligence at your own pace.
                         </p>
                     </motion.div>
                 </div>
@@ -85,18 +96,21 @@ export default function Courses() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                             >
-                                <Card variant="solid" className="course-card" onClick={() => navigate(`/course/${course.id}`)}>
-                                    <div className="course-badge">{course.difficulty}</div>
-                                    <h3 className="course-title">{course.title}</h3>
-                                    <p className="course-description">{course.description}</p>
-                                    <div className="course-meta">
-                                        <span><FaClock /> {course.duration}</span>
-                                        <span><FaUsers /> {course.enrolled} enrolled</span>
-                                        <span><FaStar /> {course.rating}</span>
-                                    </div>
-                                    <div className="course-tags">
-                                        <span className="tag">{course.category}</span>
-                                        <span className="tag">Ages {course.ageGroup}</span>
+                                <Card variant="glass" className="course-card" onClick={() => navigate(`/course/${course.id}`)}>
+                                    {course.imageUrl && <div className="course-card-image" style={{ backgroundImage: `url(${course.imageUrl})` }} />}
+                                    <div className="course-card-content">
+                                        <div className="course-badge">{course.difficulty}</div>
+                                        <h3 className="course-title">{course.title}</h3>
+                                        <p className="course-description">{course.description}</p>
+                                        <div className="course-meta">
+                                            <span><FaClock /> {course.duration}</span>
+                                            <span><FaUsers /> {course.enrolled} enrolled</span>
+                                            <span><FaStar /> {course.rating}</span>
+                                        </div>
+                                        <div className="course-tags">
+                                            <span className="tag">{course.category}</span>
+                                            <span className="tag">Ages {course.ageGroup}</span>
+                                        </div>
                                     </div>
                                 </Card>
                             </motion.div>

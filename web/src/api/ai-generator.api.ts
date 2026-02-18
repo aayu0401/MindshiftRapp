@@ -47,6 +47,30 @@ export async function generateStory(request: AIGenerationRequest): Promise<{ gen
 }
 
 /**
+ * Get the URL for streaming story generation
+ */
+export function getStoryStreamUrl(request: AIGenerationRequest): string {
+    const params = new URLSearchParams({
+        ageGroup: request.ageGroup,
+        category: request.category,
+        therapeuticGoals: request.therapeuticGoals.join(','),
+        customPrompt: request.customPrompt || '',
+        templateId: request.templateId || ''
+    });
+
+    // Get the base API URL (handling Vite proxy vs direct)
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+    // Get token from storage (a bit of a hack since we are outside React context/hook)
+    const token = localStorage.getItem('accessToken');
+
+    if (token) {
+        params.append('token', token);
+    }
+
+    return `${baseUrl}/api/ai/stream-story?${params.toString()}`;
+}
+
+/**
  * Get all AI story templates
  */
 export async function fetchTemplates(): Promise<AIStoryTemplate[]> {
@@ -84,6 +108,14 @@ export async function approveStory(storyId: string, reviewNotes?: string): Promi
 export async function rejectStory(storyId: string, reviewNotes: string): Promise<{ message: string }> {
     const response = await apiClient.post(`/api/ai/reject/${storyId}`, { reviewNotes });
     return response.data;
+}
+
+/**
+ * General purpose conversational chat with AI
+ */
+export async function chatWithAI(message: string, history: any[] = []): Promise<string> {
+    const response = await apiClient.post<{ reply: string }>('/api/ai/chat', { message, history });
+    return response.data.reply;
 }
 
 // Alias for backward compatibility

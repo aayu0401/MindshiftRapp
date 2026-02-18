@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Signup.css';
 
-type Role = 'student' | 'teacher' | 'school';
+type Role = 'student' | 'teacher' | 'school' | 'parent';
 
 export default function Signup() {
     const navigate = useNavigate();
@@ -40,33 +40,6 @@ export default function Signup() {
         address: '',
         principalName: ''
     });
-
-    const roles = [
-        {
-            id: 'student' as Role,
-            name: 'Student',
-            icon: <FaGraduationCap />,
-            color: '#3b82f6',
-            description: 'Access mental health stories and courses',
-            features: ['Interactive stories', 'Self-assessments', 'Progress tracking']
-        },
-        {
-            id: 'teacher' as Role,
-            name: 'Teacher',
-            icon: <FaChalkboardTeacher />,
-            color: '#8b5cf6',
-            description: 'Monitor students and create content',
-            features: ['Student analytics', 'AI story creator', 'Class management']
-        },
-        {
-            id: 'school' as Role,
-            name: 'School Admin',
-            icon: <FaSchool />,
-            color: '#00d4aa',
-            description: 'Manage school-wide mental health program',
-            features: ['School dashboard', 'Multi-class view', 'Reports & exports']
-        }
-    ];
 
     const steps = [
         { number: 1, title: 'Choose Role', description: 'Select your account type' },
@@ -102,18 +75,69 @@ export default function Signup() {
         setCurrentStep(currentStep - 1);
     };
 
+    const roles = [
+        {
+            id: 'student' as Role,
+            name: 'Student',
+            icon: <FaGraduationCap />,
+            color: '#3b82f6',
+            description: 'Access mental health stories and courses',
+            features: ['Interactive stories', 'Self-assessments', 'Progress tracking']
+        },
+        {
+            id: 'teacher' as Role,
+            name: 'Teacher',
+            icon: <FaChalkboardTeacher />,
+            color: '#8b5cf6',
+            description: 'Monitor students and create content',
+            features: ['Student analytics', 'AI story creator', 'Class management']
+        },
+        {
+            id: 'school' as Role,
+            name: 'School Admin',
+            icon: <FaSchool />,
+            color: '#00d4aa',
+            description: 'Manage school-wide mental health program',
+            features: ['School dashboard', 'Multi-class view', 'Reports & exports']
+        },
+        {
+            id: 'parent' as Role,
+            name: 'Parent',
+            icon: <FaUser />,
+            color: '#f59e0b',
+            description: 'Monitor your childs progress',
+            features: ['Progress reports', 'Wellbeing insights', 'Home resources']
+        }
+    ];
+
     const handleSubmit = async () => {
         setIsLoading(true);
 
-        setTimeout(() => {
-            const success = signup(formData.email, formData.password, selectedRole!, formData.name);
-            setIsLoading(false);
-
-            if (success) {
+        setTimeout(async () => {
+            try {
+                await signup({
+                    email: formData.email,
+                    password: formData.password,
+                    role: selectedRole!,
+                    name: formData.name,
+                    grade: formData.grade,
+                    schoolName: formData.schoolName,
+                    className: selectedRole === 'student' ? 'Pending Assignment' : undefined
+                });
                 toast.success('Account created successfully!');
-                navigate('/login');
-            } else {
+
+                // Redirect to respective dashboard
+                if (selectedRole === 'teacher' || selectedRole === 'school') {
+                    navigate('/dashboard');
+                } else if (selectedRole === 'student') {
+                    navigate('/student-dashboard');
+                } else {
+                    navigate('/parent-portal');
+                }
+            } catch (error) {
                 toast.error('Signup failed. Please try again.');
+            } finally {
+                setIsLoading(false);
             }
         }, 1500);
     };
@@ -138,8 +162,10 @@ export default function Signup() {
                     transition={{ duration: 0.6 }}
                 >
                     <Link to="/" className="brand-logo">
-                        <span className="brand-icon">📚</span>
-                        <span className="brand-name">Mindshiftr</span>
+                        <motion.div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <span className="brand-icon">📚</span>
+                            <span className="brand-name">Mindshiftr</span>
+                        </motion.div>
                     </Link>
 
                     <div className="progress-steps">
@@ -203,7 +229,10 @@ export default function Signup() {
                                                 onClick={() => handleRoleSelect(role.id)}
                                                 whileHover={{ scale: 1.02, y: -4 }}
                                                 whileTap={{ scale: 0.98 }}
-                                                style={{ borderColor: role.color }}
+                                                style={{
+                                                    '--role-color': role.color,
+                                                    '--role-color-alpha': `${role.color}4D` // 30% opacity
+                                                } as React.CSSProperties}
                                             >
                                                 <div className="role-icon-large" style={{ color: role.color }}>
                                                     {role.icon}
@@ -219,7 +248,7 @@ export default function Signup() {
                                                     ))}
                                                 </ul>
                                                 <div className="select-button" style={{ background: role.color }}>
-                                                    Select {role.name}
+                                                    Connect as {role.name}
                                                 </div>
                                             </motion.div>
                                         ))}

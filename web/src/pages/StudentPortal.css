@@ -1,0 +1,638 @@
+/* ===================================
+   STUDENT PORTAL - HI-TECH ADVENTURE HUB
+   =================================== */
+
+.student-portal-page {
+    min-height: 100vh;
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Background HUD Effects */
+.portal-hud {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.portal-hud .parallax-layer {
+    position: absolute;
+    inset: -100px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.scanline {
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, rgba(14, 165, 233, 0.08), transparent);
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: scanline 12s linear infinite;
+    z-index: 3;
+}
+
+.grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(14, 165, 233, 0.05) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(14, 165, 233, 0.05) 2px, transparent 2px);
+    background-size: 100px 100px;
+    transform: perspective(1000px) rotateX(45deg);
+    transform-origin: top;
+    mask-image: linear-gradient(to bottom, black, transparent 80%);
+    opacity: 0.4;
+}
+
+.gradient-sphere {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.15;
+}
+
+.sphere-1 {
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, var(--color-primary-light), transparent);
+    top: -400px;
+    right: -200px;
+    opacity: 0.1;
+}
+
+.sphere-2 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--color-secondary), transparent);
+    bottom: -200px;
+    left: -100px;
+    opacity: 0.1;
+}
+
+.portal-container {
+    position: relative;
+    z-index: 1;
+    padding-top: 140px;
+    padding-bottom: 80px;
+    max-width: 1536px;
+    margin: 0 auto;
+    padding-inline: 40px;
+}
+
+/* Hero HUD Section */
+.portal-hero-hud {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+    border: 1px solid rgba(14, 165, 233, 0.2);
+    border-radius: 40px;
+    padding: 60px;
+    margin-bottom: 60px;
+    box-shadow:
+        var(--shadow-xl),
+        inset 0 0 50px rgba(14, 165, 233, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.portal-hero-hud::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-neon-blue), transparent);
+    animation: shimmer 5s infinite;
+}
+
+.hero-profile-hud {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+}
+
+.profile-avatar-outer {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    border-radius: 48px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+
+.profile-avatar-outer img {
+    width: 100%;
+    height: 100%;
+    border-radius: 36px;
+    background: var(--color-bg-secondary);
+    object-fit: cover;
+}
+
+.level-badge {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    color: var(--color-primary);
+    padding: 10px 30px;
+    border-radius: 100px;
+    font-weight: 900;
+    font-size: 1rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-primary-light);
+    white-space: nowrap;
+    letter-spacing: 2px;
+}
+
+.hero-text-content {
+    flex: 1;
+}
+
+.hero-title-hitech {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 900;
+    margin-bottom: 30px;
+    color: var(--color-text-primary);
+    letter-spacing: -2px;
+    line-height: 1;
+}
+
+.text-glow {
+    background: linear-gradient(135deg, var(--color-neon-blue), var(--color-neon-teal));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 15px rgba(14, 165, 233, 0.5));
+}
+
+.xp-bar-container {
+    width: 100%;
+    max-width: 600px;
+}
+
+.xp-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--color-text-muted);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.xp-bar-outer {
+    height: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 100px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 3px 15px rgba(0, 0, 0, 0.6);
+}
+
+.xp-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-neon-blue), var(--color-neon-teal));
+    position: relative;
+    box-shadow: 0 0 25px rgba(14, 165, 233, 0.7);
+}
+
+.xp-shimmer {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    animation: shimmer 3s infinite;
+}
+
+/* HUD Stats Grid */
+.stats-hud-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    margin-bottom: 80px;
+}
+
+.hud-stat-card {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(14, 165, 233, 0.1) !important;
+    border-radius: 48px !important;
+    padding: 35px !important;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.hud-stat-card:hover {
+    background: white !important;
+    transform: translateY(-12px) scale(1.03) !important;
+    border-color: var(--color-primary-light) !important;
+    box-shadow: var(--shadow-xl) !important;
+}
+
+.hud-stat-icon-wrapper {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hud-stat-icon {
+    font-size: 2rem;
+    color: var(--accent-color);
+    z-index: 2;
+    filter: drop-shadow(0 0 10px currentColor);
+}
+
+.hud-stat-glow {
+    position: absolute;
+    inset: 0;
+    background: var(--accent-color);
+    filter: blur(25px);
+    opacity: 0.15;
+    border-radius: 28px;
+}
+
+.hud-stat-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--color-text-primary);
+    line-height: 1;
+    letter-spacing: -1px;
+}
+
+.hud-stat-label {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    margin-top: 8px;
+}
+
+/* Main Content HUD Alignment */
+.portal-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 60px;
+}
+
+.portal-section {
+    margin-bottom: 80px;
+}
+
+.section-title {
+    color: var(--color-text-primary);
+    font-size: 2rem;
+    font-weight: 900;
+    border-left: 8px solid var(--color-primary);
+    padding-left: 25px;
+    margin-bottom: 40px;
+    letter-spacing: -1px;
+}
+
+/* Mood Pulse HUD */
+.mood-pulse-container {
+    padding: 50px !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    border-radius: 48px !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+.mood-pulse-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.mood-pulse-header h3 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin-bottom: 10px;
+}
+
+.mood-pulse-header p {
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.mood-pulse-options {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.mood-pulse-btn {
+    width: 85px;
+    height: 85px;
+    font-size: 2.8rem !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 28px !important;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mood-pulse-btn:hover {
+    background: rgba(14, 165, 233, 0.15) !important;
+    border-color: var(--color-neon-blue) !important;
+    box-shadow: 0 0 40px rgba(14, 165, 233, 0.3) !important;
+    transform: translateY(-10px) scale(1.15) !important;
+}
+
+/* Achievements HUD */
+.achievements-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.achievement-card {
+    background: white !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    border-radius: 32px !important;
+    padding: 30px !important;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    transition: all 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.achievement-card:hover {
+    background: white !important;
+    border-color: var(--color-primary-light) !important;
+    transform: translateX(10px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+.achievement-icon {
+    font-size: 3rem;
+}
+
+.achievement-info h4 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin-bottom: 6px;
+}
+
+.achievement-info p {
+    color: var(--color-text-muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.achievement-card.locked {
+    opacity: 0.5;
+    filter: grayscale(1) blur(0.5px);
+}
+
+.lock-overlay {
+    position: absolute;
+    right: 40px;
+    font-size: 2rem;
+    opacity: 0.4;
+}
+
+/* Recommendations HUD */
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.rec-card {
+    border-radius: 40px !important;
+    overflow: hidden;
+    background: white !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    padding: 0 !important;
+    transition: all 0.4s ease !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+.rec-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    border-color: rgba(14, 165, 233, 0.2) !important;
+}
+
+.rec-image {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+}
+
+.rec-content {
+    padding: 30px;
+}
+
+.rec-category {
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--color-neon-blue);
+    display: block;
+    margin-bottom: 15px;
+}
+
+.rec-content h3 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin-bottom: 25px;
+    line-height: 1.3;
+}
+
+.rec-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rec-footer span {
+    font-weight: 700;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Responsive Scaling */
+@media (max-width: 1200px) {
+    .portal-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .portal-container {
+        padding-inline: 20px;
+    }
+
+    .portal-hero-hud {
+        padding: 40px 20px;
+    }
+
+    .hero-profile-hud {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .profile-avatar-outer {
+        width: 140px;
+        height: 140px;
+    }
+
+    .mood-pulse-options {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .hud-stat-card {
+        padding: 25px !important;
+    }
+}
+
+/* Micro-Animations & Enhancements */
+.neural-data-bit {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--color-neon-blue);
+    border-radius: 50%;
+    filter: blur(1px);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.system-alert-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(14, 165, 233, 0.1);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--color-neon-blue);
+    margin-bottom: 20px;
+    cursor: default;
+    transition: all 0.3s ease;
+}
+
+.system-alert-pill .pulse-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--color-neon-blue);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--color-neon-blue);
+    animation: pulse 2s infinite;
+}
+
+.scanning-avatar-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent, rgba(14, 165, 233, 0.2), transparent);
+    background-size: 100% 200%;
+    animation: scanVertical 4s linear infinite;
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 5;
+}
+
+@keyframes scanVertical {
+    0% {
+        background-position: 0 -100%;
+    }
+
+    100% {
+        background-position: 0 100%;
+    }
+}
+
+.hud-stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.hud-stat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent, rgba(14, 165, 233, 0.05), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.hud-stat-card:hover::before {
+    transform: translateX(100%);
+}
+
+.status-node-active {
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.4) !important;
+    border-color: var(--color-neon-blue) !important;
+}
+
+/* Data Stream HUD Overlay */
+.data-stream-overlay {
+    position: absolute;
+    top: 0;
+    right: 30px;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--color-neon-blue), transparent);
+    opacity: 0.2;
+}
+
+.data-stream-dot {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: var(--color-neon-blue);
+    left: -1px;
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--color-neon-blue);
+    animation: dataStreamFall 3s linear infinite;
+}
+
+@keyframes dataStreamFall {
+    0% {
+        top: -10%;
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        top: 110%;
+        opacity: 0;
+    }
+}

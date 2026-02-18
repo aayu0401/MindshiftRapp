@@ -1,14 +1,16 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { FaArrowLeft, FaArrowRight, FaSpinner } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaArrowLeft, FaArrowRight, FaSpinner, FaBrain, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import { getStoryById as getSampleStoryById } from '../data/sampleStories';
 import { fetchStoryById, updateStoryProgress } from '../api/stories.api';
+import { useRealtime } from '../context/RealtimeContext';
+import { useAuth } from '../context/AuthContext';
 import './StoryReader.css';
 
-// API Story type (matches backend schema)
 interface APIStory {
     id: string;
     title: string;
@@ -43,17 +45,25 @@ interface APIStory {
 export default function StoryReader() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { socket } = useRealtime();
+    const { user } = useAuth();
 
     const [story, setStory] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [usingMockData, setUsingMockData] = useState(false);
-    const [currentChapter, setCurrentChapter] = useState(0);
     const [currentSection, setCurrentSection] = useState(0);
     const [savingProgress, setSavingProgress] = useState(false);
+    const [isReading, setIsReading] = useState(false);
 
     useEffect(() => {
         loadStory();
     }, [id]);
+
+    useEffect(() => {
+        return () => {
+            window.speechSynthesis.cancel();
+        };
+    }, []);
 
     const loadStory = async () => {
         if (!id) {
@@ -63,28 +73,19 @@ export default function StoryReader() {
 
         setLoading(true);
         try {
-            // Try to fetch from API
             const apiStory: any = await fetchStoryById(id);
-
-            // Convert API story to component format
             const convertedStory = convertAPIStory(apiStory);
             setStory(convertedStory);
             setUsingMockData(false);
 
-            // Set progress from API if available
             if (apiStory.progress) {
-                setCurrentChapter(apiStory.progress.currentChapter || 0);
                 setCurrentSection(apiStory.progress.currentSection || 0);
             }
         } catch (error) {
-            console.log('Backend unavailable, using sample data');
-            // Fallback to mock data
             const sampleStory = getSampleStoryById(id);
             if (sampleStory) {
                 setStory(sampleStory);
                 setUsingMockData(true);
-            } else {
-                setStory(null);
             }
         } finally {
             setLoading(false);
@@ -92,9 +93,7 @@ export default function StoryReader() {
     };
 
     const convertAPIStory = (apiStory: APIStory) => {
-        // Flatten chapters and sections into a single content array
         const content: any[] = [];
-
         apiStory.chapters
             .sort((a, b) => a.order - b.order)
             .forEach(chapter => {
@@ -102,16 +101,14 @@ export default function StoryReader() {
                     .sort((a, b) => a.order - b.order)
                     .forEach(section => {
                         if (section.type === 'TEXT') {
-                            content.push({
-                                type: 'text',
-                                content: section.content
-                            });
+                            content.push({ type: 'text', content: section.content });
                         } else if (section.type === 'QUESTION' && section.question) {
+                            const q = section.question as any;
                             content.push({
                                 type: 'question',
-                                content: section.question.questionText,
-                                questionType: section.question.questionType.toLowerCase(),
-                                questionId: section.question.id
+                                content: q.question || q.questionText || "Reflect on this moment...",
+                                questionType: (q.type || q.questionType || 'reflection').toLowerCase(),
+                                questionId: q.id
                             });
                         }
                     });
@@ -121,56 +118,79 @@ export default function StoryReader() {
             id: apiStory.id,
             title: apiStory.title,
             author: apiStory.author,
-            excerpt: apiStory.description,
             category: apiStory.category,
             ageGroup: apiStory.ageGroup,
-            imageUrl: apiStory.imageUrl,
             content
         };
     };
 
+    const toggleRead = () => {
+        if (isReading) {
+            window.speechSynthesis.cancel();
+            setIsReading(false);
+        } else {
+            const text = story.content[currentSection].content;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.onend = () => setIsReading(false);
+            utterance.rate = 0.95;
+            window.speechSynthesis.speak(utterance);
+            setIsReading(true);
+        }
+    };
+
     const saveProgress = async (section: number, completed: boolean = false) => {
         if (usingMockData || !id) return;
-
         setSavingProgress(true);
         try {
-            await updateStoryProgress(id, currentChapter, section, completed);
+            await updateStoryProgress(id, 0, section, completed);
         } catch (error) {
-            console.error('Failed to save progress:', error);
+            console.error(error);
         } finally {
             setSavingProgress(false);
         }
     };
 
     const handleNext = () => {
+        window.speechSynthesis.cancel();
+        setIsReading(false);
         if (!story || currentSection >= story.content.length - 1) return;
-
         const nextSection = currentSection + 1;
         setCurrentSection(nextSection);
 
-        // Save progress to backend
-        const isComplete = nextSection === story.content.length - 1;
-        saveProgress(nextSection, isComplete);
+        // REALTIME: Notify teacher of progress
+        if (socket) {
+            socket.emit('story-interaction', {
+                studentName: user?.name,
+                type: 'STORY_PROGRESS',
+                content: `is now on page ${nextSection + 1} of "${story.title}"`
+            });
+        }
+
+        saveProgress(nextSection, nextSection === story.content.length - 1);
     };
 
     const handlePrevious = () => {
+        window.speechSynthesis.cancel();
+        setIsReading(false);
         if (currentSection > 0) {
             setCurrentSection(currentSection - 1);
         }
-    };
-
-    const retryBackend = () => {
-        loadStory();
     };
 
     if (loading) {
         return (
             <div className="story-reader">
                 <Navigation />
-                <div className="container section">
-                    <div className="loading-state">
-                        <FaSpinner className="spinner" />
-                        <p>Loading story...</p>
+                <div className="reader-container">
+                    <div className="container text-center">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="hud-scanner-loading"
+                        >
+                            <div className="scanner-line"></div>
+                            <h2 className="loading-text">SCANNING NEURAL NARRATIVE...</h2>
+                        </motion.div>
                     </div>
                 </div>
                 <Footer />
@@ -178,18 +198,7 @@ export default function StoryReader() {
         );
     }
 
-    if (!story) {
-        return (
-            <div className="story-reader">
-                <Navigation />
-                <div className="container section">
-                    <h2>Story not found</h2>
-                    <button onClick={() => navigate('/stories')}>Back to Stories</button>
-                </div>
-                <Footer />
-            </div>
-        );
-    }
+    if (!story) return <div className="story-reader"><Navigation /><div className="container section">DATABASE ERROR: STORY NOT FOUND</div><Footer /></div>;
 
     const section = story.content[currentSection];
     const progress = ((currentSection + 1) / story.content.length) * 100;
@@ -197,116 +206,110 @@ export default function StoryReader() {
     return (
         <div className="story-reader">
             <Navigation />
-
             <div className="reader-container">
                 <div className="container container-narrow">
-                    {/* Demo Mode Badge */}
-                    {usingMockData && (
-                        <div className="demo-mode-badge">
-                            <span className="badge-icon">📖</span>
-                            <span>Demo Mode - Using sample data</span>
-                            <button className="badge-retry" onClick={retryBackend}>
-                                Try Backend
+                    <motion.div className="reader-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+                        <div className="header-top">
+                            <button className="back-button" onClick={() => navigate('/stories')}>
+                                <FaArrowLeft /> Back to Library
+                            </button>
+                            <button className={`audio-btn ${isReading ? 'active' : ''}`} onClick={toggleRead}>
+                                {isReading ? <FaVolumeMute /> : <FaVolumeUp />} {isReading ? 'Stop Reading' : 'Read Aloud'}
                             </button>
                         </div>
-                    )}
-
-                    {/* Story Header */}
-                    <motion.div
-                        className="reader-header"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                    >
-                        <button className="back-button" onClick={() => navigate('/stories')}>
-                            <FaArrowLeft /> Back to Stories
-                        </button>
+                        {story.imageUrl && (
+                            <div className="reader-cover-image">
+                                <img src={story.imageUrl} alt={story.title} />
+                            </div>
+                        )}
                         <h1 className="reader-title">{story.title}</h1>
-                        <p className="reader-author">by {story.author}</p>
-                        <div className="reader-meta">
-                            <span className="meta-badge">{story.category}</span>
-                            <span className="meta-badge">Ages {story.ageGroup}</span>
-                        </div>
+                        <p className="reader-author">{story.author}</p>
                     </motion.div>
 
-                    {/* Progress Bar */}
                     <div className="progress-container">
-                        <div className="progress-bar">
+                        <div className="progress-info">
+                            <span>Story Progress</span>
+                            <span>{Math.round(((currentSection + 1) / story.content.length) * 100)}%</span>
+                        </div>
+                        <div className="progress-track">
                             <motion.div
                                 className="progress-fill"
                                 initial={{ width: 0 }}
-                                animate={{ width: `${progress}%` }}
-                                transition={{ duration: 0.5 }}
+                                animate={{ width: `${((currentSection + 1) / story.content.length) * 100}%` }}
+                                transition={{ type: 'spring', stiffness: 50, damping: 20 }}
                             />
                         </div>
-                        <span className="progress-text">
-                            Section {currentSection + 1} of {story.content.length}
-                            {savingProgress && <span className="saving-indicator"> • Saving...</span>}
-                        </span>
                     </div>
 
-                    {/* Content Section */}
-                    <motion.div
-                        key={currentSection}
-                        className={`content-section ${section.type === 'question' ? 'question-section' : 'text-section'}`}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        {section.type === 'text' ? (
-                            <div className="story-text">
-                                <p>{section.content}</p>
-                            </div>
-                        ) : (
-                            <div className="question-card glass">
-                                <div className="question-icon">💭</div>
-                                <h3 className="question-type">
-                                    {section.questionType === 'reflection' && 'Reflection Question'}
-                                    {section.questionType === 'discussion' && 'Discussion Question'}
-                                    {section.questionType === 'activity' && 'Activity'}
-                                </h3>
-                                <p className="question-text">{section.content}</p>
-                                <div className="question-hint">
-                                    Take a moment to think about this question. There are no wrong answers.
-                                </div>
-                            </div>
-                        )}
-                    </motion.div>
+                    <div className="story-content-area">
+                        <AnimatePresence mode='wait'>
+                            <motion.div
+                                key={currentSection}
+                                className="content-wrapper"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.4 }}
+                            >
+                                {section.type === 'text' ? (
+                                    <motion.div
+                                        className="story-card-container"
+                                        initial={{ filter: 'blur(10px)', opacity: 0 }}
+                                        animate={{ filter: 'blur(0px)', opacity: 1 }}
+                                        transition={{ duration: 0.8 }}
+                                    >
+                                        <div className="story-text-content">
+                                            {section.content.split('\n').map((paragraph: string, pIdx: number) => (
+                                                <motion.p
+                                                    key={pIdx}
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: pIdx * 0.2 }}
+                                                >
+                                                    {paragraph}
+                                                </motion.p>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                ) : (
+                                    <div className="question-card-container">
+                                        <div className="question-header">
+                                            <div className="question-icon-wrapper">
+                                                <FaBrain style={{ color: '#d97706' }} />
+                                            </div>
+                                            <span className="question-badge">
+                                                {section.questionType} Moment
+                                            </span>
+                                            <h3 className="question-title">Time to Reflect</h3>
+                                        </div>
+                                        <p className="question-text-content">{section.content}</p>
+                                    </div>
+                                )}
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
 
-                    {/* Navigation Buttons */}
                     <div className="reader-navigation">
-                        <button
-                            className="nav-btn"
-                            onClick={handlePrevious}
-                            disabled={currentSection === 0}
-                        >
+                        <button className="nav-btn" onClick={handlePrevious} disabled={currentSection === 0}>
                             <FaArrowLeft /> Previous
                         </button>
-                        <button
-                            className="nav-btn primary"
-                            onClick={handleNext}
-                            disabled={currentSection === story.content.length - 1}
-                        >
-                            Next <FaArrowRight />
+                        <button className="nav-btn primary" onClick={handleNext} disabled={currentSection === story.content.length - 1}>
+                            Next Page <FaArrowRight />
                         </button>
                     </div>
 
                     {currentSection === story.content.length - 1 && (
-                        <motion.div
-                            className="story-complete"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                        >
-                            <h3>Story Complete! 🎉</h3>
-                            <p>You've finished reading "{story.title}"</p>
-                            <button className="complete-btn" onClick={() => navigate('/stories')}>
-                                Explore More Stories
+                        <div className="story-complete-card">
+                            <div className="completion-confetti">🎉</div>
+                            <h3 className="complete-title">Story Completed!</h3>
+                            <p style={{ color: '#64748b', fontSize: '1.2rem' }}>You've earned 50 Mind Points for completing this journey.</p>
+                            <button className="complete-btn quiz-btn" onClick={() => navigate(`/story/${id}/quiz`)}>
+                                <FaBrain /> Take Therapeutic Quiz
                             </button>
-                        </motion.div>
+                        </div>
                     )}
                 </div>
             </div>
-
             <Footer />
         </div>
     );

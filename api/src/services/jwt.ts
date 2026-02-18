@@ -2,10 +2,10 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import Redis from 'ioredis';
 
-const redis = new Redis(process.env.REDIS_URL);
+const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 
 export function signAccessToken(payload: object) {
-  return jwt.sign(payload, process.env.JWT_ACCESS_TOKEN_SECRET!, { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '15m' });
+  return jwt.sign(payload, process.env.JWT_ACCESS_TOKEN_SECRET || 'secret', { expiresIn: (process.env.ACCESS_TOKEN_EXPIRES_IN || '15m') as any });
 }
 
 export async function createRefreshToken(userId: string) {

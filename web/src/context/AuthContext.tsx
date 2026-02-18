@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type UserRole = 'school' | 'teacher' | 'student';
+export type UserRole = 'school' | 'teacher' | 'student' | 'parent';
 
 export interface User {
     id: string;
@@ -37,17 +37,18 @@ export interface SignupData {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        // Check for stored user on mount
-        const storedUser = localStorage.getItem('mindshiftr_user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+    const [user, setUser] = useState<User | null>(() => {
+        try {
+            const storedUser = localStorage.getItem('mindshiftr_user');
+            return storedUser ? JSON.parse(storedUser) : null;
+        } catch (error) {
+            console.error('Error parsing stored user:', error);
+            return null;
         }
-        setLoading(false);
-    }, []);
+    });
+    const [loading, setLoading] = useState(false);
+
+    // No need for mount-time load anymore as we do it in useState initializer
 
     const login = async (email: string, password: string, role?: UserRole) => {
         setLoading(true);
@@ -56,7 +57,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await new Promise(resolve => setTimeout(resolve, 1000));
 
             // Mock user data based on email or provided role
-            const userRole = role || (email.includes('teacher') ? 'teacher' : email.includes('school') ? 'school' : 'student');
+            const userRole = role || (
+                email.includes('teacher') ? 'teacher' :
+                    email.includes('school') ? 'school' :
+                        email.includes('parent') ? 'parent' :
+                            'student'
+            );
 
             const mockUser: User = {
                 id: Math.random().toString(36).substr(2, 9),
@@ -72,6 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             setUser(mockUser);
             localStorage.setItem('mindshiftr_user', JSON.stringify(mockUser));
+            localStorage.setItem('accessToken', 'demo-token-123');
         } catch (error) {
             throw new Error('Login failed');
         } finally {
@@ -99,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             setUser(newUser);
             localStorage.setItem('mindshiftr_user', JSON.stringify(newUser));
+            localStorage.setItem('accessToken', 'demo-token-123');
         } catch (error) {
             throw new Error('Signup failed');
         } finally {

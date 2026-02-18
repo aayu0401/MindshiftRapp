@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { FaBook, FaSync } from 'react-icons/fa';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
-import { StoryCard } from '../components/Card';
-import { fetchStories, Story } from '../api/stories.api';
+import { StoryCard, StoryCardSkeleton } from '../components/Card';
+import { fetchStories } from '../api/stories.api';
 import { sampleStories } from '../data/sampleStories';
 import './Stories.css';
 
@@ -17,29 +18,26 @@ export default function Stories() {
     const [selectedAgeGroup, setSelectedAgeGroup] = useState<string>('all');
 
     const categories = ['all', 'Classic Literature', 'Modern Classic', 'Original Story', 'ANXIETY_MANAGEMENT', 'SOCIAL_SKILLS', 'SELF_ESTEEM'];
-    const ageGroups = ['all', '6-8', '6-10', '8-12', '10-14', 'AGE_6_8', 'AGE_8_10', 'AGE_10_12'];
-
-    useEffect(() => {
-        loadStories();
-    }, []);
+    const ageGroups = ['all', '6-10', '10-14'];
 
     const loadStories = async () => {
         try {
             setLoading(true);
-
-            // Try to fetch from API
             const data = await fetchStories({ published: true });
             setStories(data);
             setUsingMockData(false);
         } catch (err: any) {
             console.warn('Backend not available, using mock data:', err.message);
-            // Fallback to mock data if backend is not available
             setStories(sampleStories);
             setUsingMockData(true);
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        loadStories();
+    }, []);
 
     const filteredStories = stories.filter(story => {
         const categoryMatch = selectedCategory === 'all' ||
@@ -55,63 +53,75 @@ export default function Stories() {
 
     const formatCategory = (category: string) => {
         if (!category) return '';
+        if (category === 'all') return 'All Stories';
         return category.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
     };
 
     const formatAgeGroup = (ageGroup: string) => {
         if (!ageGroup) return '';
-        return ageGroup.replace('AGE_', '').replace('_', '-');
+        if (ageGroup === 'all') return 'All Ages';
+        return `Ages ${ageGroup.replace('AGE_', '').replace('_', '-')}`;
     };
 
     return (
         <div className="stories-page">
             <Navigation />
 
-            <section className="stories-hero section-sm">
+            {/* Hero */}
+            <section className="stories-hero">
                 <div className="container">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
+                        transition={{ duration: 0.7 }}
                     >
-                        <h1 className="stories-title">Story Library</h1>
+                        <div className="stories-hero-badge">
+                            <FaBook /> Story Library
+                        </div>
+                        <h1 className="stories-title">
+                            Therapeutic <span className="stories-title-accent">Stories</span>
+                        </h1>
                         <p className="stories-subtitle">
-                            Explore our curated collection of stories with embedded therapeutic questions
-                            designed to spark meaningful conversations about mental and emotional health.
+                            Explore our curated collection of evidence-based stories designed to build emotional resilience, empathy, and wellbeing in young minds.
                         </p>
+
                         {usingMockData && (
-                            <div className="demo-mode-badge">
-                                <span className="badge-icon">📚</span>
-                                <span>Demo Mode - Showing sample stories</span>
-                                <button className="badge-retry" onClick={loadStories}>
-                                    Try Backend
+                            <motion.div
+                                className="demo-mode-pill"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                            >
+                                <span className="pill-pulse" />
+                                <span>Showing sample stories</span>
+                                <button className="pill-action" onClick={loadStories}>
+                                    <FaSync style={{ marginRight: '0.3rem' }} /> Refresh
                                 </button>
-                            </div>
+                            </motion.div>
                         )}
                     </motion.div>
                 </div>
             </section>
 
-            <section className="stories-filters section-sm">
+            {/* Sticky Filter Bar */}
+            <section className="stories-filters">
                 <div className="container">
                     <div className="filters-grid">
                         <div className="filter-group">
-                            <label className="filter-label">Category</label>
+                            <span className="filter-label">Category</span>
                             <div className="filter-buttons">
-                                {categories.map(category => (
+                                {categories.slice(0, 5).map(cat => (
                                     <button
-                                        key={category}
-                                        className={`filter-btn ${selectedCategory === category ? 'active' : ''}`}
-                                        onClick={() => setSelectedCategory(category)}
+                                        key={cat}
+                                        className={`filter-btn ${selectedCategory === cat ? 'active' : ''}`}
+                                        onClick={() => setSelectedCategory(cat)}
                                     >
-                                        {category === 'all' ? 'All' : formatCategory(category)}
+                                        {formatCategory(cat)}
                                     </button>
                                 ))}
                             </div>
                         </div>
-
                         <div className="filter-group">
-                            <label className="filter-label">Age Group</label>
+                            <span className="filter-label">Age Group</span>
                             <div className="filter-buttons">
                                 {ageGroups.map(age => (
                                     <button
@@ -119,7 +129,7 @@ export default function Stories() {
                                         className={`filter-btn ${selectedAgeGroup === age ? 'active' : ''}`}
                                         onClick={() => setSelectedAgeGroup(age)}
                                     >
-                                        {age === 'all' ? 'All' : formatAgeGroup(age)}
+                                        {formatAgeGroup(age)}
                                     </button>
                                 ))}
                             </div>
@@ -128,44 +138,47 @@ export default function Stories() {
                 </div>
             </section>
 
-            <section className="stories-grid-section section">
+            {/* Stories Grid */}
+            <section className="stories-grid-section">
                 <div className="container">
-                    {loading && (
-                        <div className="loading-state">
-                            <div className="spinner"></div>
-                            <p>Loading stories...</p>
+                    <div className="archive-status-hud">
+                        <div className="status-node">
+                            <span className="pulse-dot-green" />
+                            {filteredStories.length} {filteredStories.length === 1 ? 'Story' : 'Stories'} Available
                         </div>
-                    )}
+                    </div>
 
-                    {!loading && (
-                        <div className="stories-grid">
-                            {filteredStories.map((story, index) => (
+                    <div className="stories-grid">
+                        {loading ? (
+                            [...Array(6)].map((_, i) => <StoryCardSkeleton key={i} />)
+                        ) : (
+                            filteredStories.map((story, index) => (
                                 <motion.div
                                     key={story.id}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                                    transition={{ delay: index * 0.05 }}
                                 >
                                     <StoryCard
                                         title={story.title}
                                         author={story.author}
-                                        excerpt={story.excerpt}
-                                        category={formatCategory(story.category)}
+                                        excerpt={story.description || story.excerpt}
+                                        category={story.category}
                                         imageUrl={story.imageUrl}
                                         onClick={() => navigate(`/story/${story.id}`)}
                                     />
                                 </motion.div>
-                            ))}
-                        </div>
-                    )}
+                            ))
+                        )}
+                    </div>
 
                     {!loading && filteredStories.length === 0 && (
                         <div className="no-stories">
                             <p>No stories found matching your filters.</p>
-                            <button className="btn btn-primary" onClick={() => {
-                                setSelectedCategory('all');
-                                setSelectedAgeGroup('all');
-                            }}>
+                            <button
+                                className="filter-btn active"
+                                onClick={() => { setSelectedCategory('all'); setSelectedAgeGroup('all'); }}
+                            >
                                 Clear Filters
                             </button>
                         </div>

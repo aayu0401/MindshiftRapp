@@ -44,9 +44,9 @@ class APIClient {
                             return axios(error.config);
                         }
                     } catch (refreshError) {
-                        // Refresh failed, clear token and redirect to login
+                        // Refresh failed, clear token
                         this.clearAccessToken();
-                        window.location.href = '/login';
+                        console.warn('Session expired or unauthorized. App will handle state.');
                     }
                 }
                 return Promise.reject(error);

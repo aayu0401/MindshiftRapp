@@ -1,0 +1,45 @@
+.live-read-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+}
+
+.pulse-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    animation: livePulse 2s infinite;
+}
+
+.eye-icon {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.count-text {
+    font-weight: 500;
+}
+
+@keyframes livePulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}

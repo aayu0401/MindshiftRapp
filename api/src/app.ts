@@ -7,6 +7,7 @@ import storiesRoutes from './routes/stories';
 import assessmentsRoutes from './routes/assessments';
 import analyticsRoutes from './routes/analytics';
 import aiGeneratorRoutes from './routes/ai-generator';
+import journalRoutes from './routes/journal';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api/stories', storiesRoutes);
 app.use('/api/assessments', assessmentsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/ai', aiGeneratorRoutes);
+app.use('/api/journal', journalRoutes);
 
 // Health check
 app.get('/health', (_req, res) => res.json({ ok: true }));
