@@ -1,7 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth, UserRole } from '../context/AuthContext';
-import { FaSpinner } from 'react-icons/fa';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
@@ -13,16 +12,36 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
 
     if (loading) {
         return (
-            <div className="loading-state" style={{ minHeight: '100vh', background: '#020617' }}>
-                <FaSpinner className="spinner" />
-                <h2 className="loading-text-hitech">Verifying Credentials...</h2>
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>SECURE UPLINK IN PROGRESS</p>
+            <div style={{
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--color-bg-primary, #f8fafc)',
+                gap: '1rem',
+            }}>
+                <div style={{
+                    width: 40,
+                    height: 40,
+                    border: '3px solid rgba(14, 165, 233, 0.15)',
+                    borderTopColor: '#0ea5e9',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                }} />
+                <p style={{
+                    color: 'var(--color-text-secondary, #64748b)',
+                    fontSize: '0.95rem',
+                    fontWeight: 600,
+                }}>
+                    Verifying your session…
+                </p>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
         );
     }
 
     if (!isAuthenticated) {
-        console.warn('ProtectedRoute: Not authenticated, redirecting to login');
         return <Navigate to="/login" replace />;
     }
 

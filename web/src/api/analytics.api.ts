@@ -82,8 +82,8 @@ export const trackEngagement = async (activityType: 'story' | 'assessment', dura
 
 export const fetchClassAnalytics = async (classId?: string): Promise<any> => {
     try {
-        const endpoint = classId ? `/api/analytics/class/${classId}` : '/api/analytics/class';
-        const response = await apiClient.get<any>(endpoint);
+        const params = classId ? { classId } : {};
+        const response = await apiClient.get<any>('/api/analytics/class', { params });
         return response.data;
     } catch (error) {
         return {
@@ -96,7 +96,7 @@ export const fetchClassAnalytics = async (classId?: string): Promise<any> => {
 
 export const fetchHighRiskStudents = async (): Promise<any[]> => {
     try {
-        const response = await apiClient.get<any[]>('/api/analytics/high-risk-students');
+        const response = await apiClient.get<any[]>('/api/analytics/high-risk');
         return response.data;
     } catch (error) {
         return [];

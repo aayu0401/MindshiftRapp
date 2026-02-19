@@ -116,12 +116,16 @@ const getMappedStories = (): Story[] => {
  */
 export async function fetchStories(filters?: StoryFilters): Promise<Story[]> {
     try {
-        // Try to get from API first
-        // const response = await apiClient.get<Story[]>(`/api/stories`);
-        // return response.data;
-        throw new Error('Backend not available');
+        const params: Record<string, string> = {};
+        if (filters?.category) params.category = filters.category;
+        if (filters?.ageGroup) params.ageGroup = filters.ageGroup;
+        if (filters?.search) params.search = filters.search;
+        if (filters?.published !== undefined) params.published = String(filters.published);
+
+        const response = await apiClient.get<Story[]>('/api/stories', { params });
+        return response.data;
     } catch (error) {
-        console.warn('Using sample + local stories');
+        console.warn('Using sample + local stories (backend unreachable)');
         const sample = getMappedStories();
         const local = getLocalStories();
         let allStories = [...local, ...sample];
@@ -143,11 +147,10 @@ export async function fetchStories(filters?: StoryFilters): Promise<Story[]> {
  */
 export async function fetchStoryById(storyId: string, userId?: string): Promise<Story> {
     try {
-        // Try API
-        // const response = await apiClient.get<Story>(`/api/stories/${storyId}`);
-        // return response.data;
-        throw new Error('Backend not available');
+        const response = await apiClient.get<Story>(`/api/stories/${storyId}`);
+        return response.data;
     } catch (error) {
+        // Fallback to local/sample data
         const stories = [...getLocalStories(), ...getMappedStories()];
         const story = stories.find(s => s.id === storyId);
         if (!story) throw new Error('Story not found');
@@ -164,14 +167,22 @@ export async function updateStoryProgress(
     currentSection: number,
     completed: boolean = false
 ): Promise<StoryProgress> {
-    // Just mock it
-    return {
-        id: 'mock-progress',
-        currentChapter,
-        currentSection,
-        completed,
-        lastReadAt: new Date()
-    };
+    try {
+        const response = await apiClient.post<StoryProgress>(`/api/stories/${storyId}/progress`, {
+            currentChapter,
+            currentSection,
+            completed,
+        });
+        return response.data;
+    } catch (error) {
+        return {
+            id: 'local-progress',
+            currentChapter,
+            currentSection,
+            completed,
+            lastReadAt: new Date()
+        };
+    }
 }
 
 /**
@@ -182,7 +193,15 @@ export async function submitQuestionResponse(
     questionId: string,
     response: any
 ): Promise<any> {
-    return { success: true };
+    try {
+        const res = await apiClient.post(`/api/stories/${storyId}/responses`, {
+            questionId,
+            response,
+        });
+        return res.data;
+    } catch (error) {
+        return { success: true, mock: true };
+    }
 }
 
 /**
